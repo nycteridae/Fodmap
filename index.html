@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FODMAP-дневник</title>
+<meta name="theme-color" content="#f6f5f1">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f6f5f1; --card:#ffffff; --ink:#1d1f1c; --ink2:#55584f; --muted:#8a8c84; --line:#e6e4dc;
+  --accent:#2f7d5b; --accent-soft:#e3f1ea; --accent-ink:#1f5a40;
+  --g:#2f9e5f; --g-soft:#e4f4ea; --y:#d99a00; --y-soft:#fbf1d6; --r:#d2463f; --r-soft:#fbe5e3; --u:#9a9c94; --u-soft:#efeee9;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --radius:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Roboto,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:20;background:rgba(246,245,241,.94);backdrop-filter:blur(8px);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.2px;flex:1}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--accent-soft);color:var(--accent-ink);white-space:nowrap}
+.sync{font-size:11px;color:var(--muted)}
+main{max-width:640px;margin:0 auto;padding:14px 14px calc(96px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+nav button{flex:1;border:0;background:none;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted);border-radius:12px}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--accent)}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;border:1px solid var(--line)}
+.card h2{font-size:16px;margin:0 0 8px;font-weight:800}
+.card h3{font-size:14px;margin:12px 0 6px;font-weight:700;color:var(--ink2)}
+.sub{color:var(--ink2);font-size:14px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;background:var(--accent);color:#fff;cursor:pointer}
+.btn.sec{background:var(--accent-soft);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent-ink);border:1px solid var(--line)}
+.btn.danger{background:var(--r-soft);color:#9b2a24}
+.btn.sm{padding:7px 11px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45}
+.full{width:100%}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+.dot.g{background:var(--g)} .dot.y{background:var(--y)} .dot.r{background:var(--r)} .dot.u{background:var(--u)}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.tag.g{background:var(--g-soft);color:#1d6b3e} .tag.y{background:var(--y-soft);color:#7a5600} .tag.r{background:var(--r-soft);color:#9b2a24} .tag.u{background:var(--u-soft);color:#55584f}
+.tag.grp{background:#eef0f6;color:#3b4a6b;font-weight:600}
+.list{list-style:none;margin:0;padding:0}
+.item{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.item:last-child{border-bottom:0}
+.item .grow{flex:1;min-width:0}
+.item .t{font-weight:600}
+.item .d{font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:16px;outline:none}
+.search:focus{border-color:var(--accent)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap;color:var(--ink2)}
+.fbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.catttl{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin:16px 4px 4px}
+.datebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.datebar button{border:1px solid var(--line);background:#fff;width:40px;height:40px;border-radius:12px;font-size:18px}
+.datebar .dt{font-weight:800;font-size:17px;text-align:center}
+.slider{margin:10px 0 4px}
+.slider .row{justify-content:space-between}
+.slider label{font-weight:600;font-size:15px}
+.slider .val{font-weight:800;min-width:28px;text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:70px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 6px;font-size:14px;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+textarea,.inp{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:16px;outline:none}
+textarea:focus,.inp:focus{border-color:var(--accent)}
+.meal{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.meal:last-child{border-bottom:0}
+.meal .x{border:0;background:none;color:var(--muted);font-size:20px;padding:0 6px}
+.mealtype{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;width:70px;flex:none}
+.notice{padding:12px 14px;border-radius:12px;font-size:14px;margin-bottom:12px}
+.notice.y{background:var(--y-soft);color:#6b4c00}
+.notice.g{background:var(--g-soft);color:#1d5b37}
+.notice.b{background:#eaf1fb;color:#24456e}
+.phase{display:flex;gap:10px;margin:6px 0}
+.phase .n{width:28px;height:28px;border-radius:50%;background:var(--u-soft);color:var(--ink2);font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
+.phase.on .n{background:var(--accent);color:#fff}
+.phase.done .n{background:var(--g-soft);color:#1d6b3e}
+.phase .b{flex:1}
+.phase .b b{display:block}
+.test{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+.test.active{border-color:var(--accent);background:var(--accent-soft)}
+.prog{height:8px;border-radius:99px;background:var(--u-soft);overflow:hidden;margin:8px 0}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin:4px 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chartbox{position:relative}
+.chartbox svg{width:100%;height:auto;display:block}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);display:none;white-space:nowrap;z-index:2}
+.stat{display:flex;gap:10px}
+.stat > div{flex:1;background:var(--bg);border-radius:12px;padding:10px}
+.stat b{font-size:22px;display:block}
+.fab{display:flex;gap:8px;margin-top:10px}
+.fab .btn{flex:1}
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(20,22,18,.38);z-index:50;display:none}
+.overlay.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-radius:20px 20px 0 0;max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .22s ease,visibility 0s linear .22s;visibility:hidden;padding:8px 16px calc(20px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.sheet.on{transform:translateY(0);visibility:visible;transition:transform .22s ease}
+.sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 10px}
+.sheet h2{margin:0 0 6px;font-size:19px;font-weight:800}
+.ingrow{display:flex;gap:6px;align-items:center;margin:6px 0}
+.ingrow .inp{padding:9px 10px}
+.ingrow .q{width:96px;flex:none}
+.ingrow .x{border:0;background:var(--u-soft);border-radius:10px;width:36px;height:40px;flex:none;font-size:18px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1d1f1c;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:80;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.empty{color:var(--muted);text-align:center;padding:18px 6px;font-size:14px}
+.hist{padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.hist:last-child{border-bottom:0}
+.scores{display:flex;gap:10px;font-size:13px;color:var(--ink2)}
+.scores b{color:var(--ink)}
+a{color:var(--accent-ink)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>FODMAP-дневник</h1>
+  <span class="chip" id="phaseChip">—</span>
+</header>
+<main>
+  <section id="tab-day"></section>
+  <section id="tab-foods" class="hide"></section>
+  <section id="tab-dishes" class="hide"></section>
+  <section id="tab-stages" class="hide"></section>
+  <section id="tab-history" class="hide"></section>
+  <div class="sync" id="sync" style="text-align:center;margin-top:8px"></div>
+</main>
+<nav id="nav">
+  <button data-tab="day" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>День</button>
+  <button data-tab="foods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-4.5 0-8-3.6-8-8.5C4 8 7 6 9.5 6c1.2 0 1.9.5 2.5.5S13.3 6 14.5 6C17 6 20 8 20 12.5 20 17.4 16.5 21 12 21z"/><path d="M12 6c0-2 1-3.5 3-4"/></svg>Продукты</button>
+  <button data-tab="dishes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13h18a9 9 0 0 1-18 0z"/><path d="M8 9c0-2 2-2 2-4M13 9c0-2 2-2 2-4"/></svg>Блюда</button>
+  <button data-tab="stages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-6H4zM10 20h4V9h-4zM16 20h4V4h-4z"/></svg>Этапы</button>
+  <button data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 8-8"/><path d="M15 7h5v5"/></svg>История</button>
+</nav>
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================== ДАННЫЕ ================== */
+const CATS={veg:'Овощи и зелень',fruit:'Фрукты и ягоды',grain:'Крупы, хлеб, макароны, мука',bake:'Выпечка и сладкое',protein:'Мясо, рыба, яйца',legume:'Бобовые и соя',dairy:'Молочное',nuts:'Орехи и семечки',sauce:'Соусы, масла, специи',drink:'Напитки'};
+const GROUPS={F:'Фруктоза',L:'Лактоза',Fw:'Фруктаны',Fo:'Фруктаны',Fg:'Фруктаны',Fr:'Фруктаны',G:'ГОС',S:'Сорбитол',M:'Маннитол'};
+const ST={g:'Можно',y:'Ограничить порцию',r:'Исключить',u:'Нет данных'};
+// [название, категория, статус g/y/r, порция/комментарий, группы FODMAP]
+const FOODS_RAW=[
+// Овощи
+['Картофель','veg','g','Любая обычная порция',''],
+['Морковь','veg','g','Любая обычная порция',''],
+['Огурец свежий','veg','g','Любая обычная порция',''],
+['Огурцы солёные/маринованные','veg','g','Если в рассоле нет чеснока и лука','Fg'],
+['Помидор','veg','g','1 средний (≈65 г)','F'],
+['Помидоры черри','veg','g','До 5 шт.','F'],
+['Перец болгарский красный','veg','g','До ½ шт. (75 г)','F'],
+['Перец болгарский зелёный','veg','g','Обычная порция',''],
+['Капуста белокочанная','veg','g','До 1 стакана нарезанной (75 г)','S'],
+['Капуста пекинская','veg','g','Обычная порция',''],
+['Капуста квашеная','veg','y','До 2 ст. л.; без лука','M'],
+['Капуста цветная','veg','r','Исключить на старте','M'],
+['Капуста брокколи (соцветия)','veg','y','До 75 г, стебли — исключить','Fr'],
+['Капуста брюссельская','veg','y','До 2 кочанчиков','Fr'],
+['Кабачок','veg','y','До 65 г (≈⅓ небольшого)','Fr'],
+['Баклажан','veg','g','До 75 г','S'],
+['Свёкла','veg','y','До 20 г (2 тонких ломтика) на порцию','Fr,G'],
+['Тыква','veg','g','До 75 г','M'],
+['Редис','veg','g','Обычная порция',''],
+['Дайкон','veg','g','Обычная порция',''],
+['Репа','veg','g','Обычная порция',''],
+['Пастернак','veg','g','Обычная порция',''],
+['Стручковая фасоль','veg','g','До 75 г (≈15 стручков)','S'],
+['Кукуруза сладкая','veg','y','До ½ початка / 2 ст. л. консервированной','S'],
+['Горошек зелёный','veg','y','До 1 ст. л.','G,F'],
+['Сельдерей стеблевой','veg','y','До ¼ стебля (10 г)','M'],
+['Шпинат','veg','g','Обычная порция',''],
+['Салат листовой, айсберг','veg','g','Обычная порция',''],
+['Руккола','veg','g','Обычная порция',''],
+['Укроп, петрушка, кинза, базилик','veg','g','Любое количество',''],
+['Зелёный лук (перо)','veg','g','Только зелёная часть — можно','Fo'],
+['Лук-порей (зелёная часть)','veg','g','Только тёмно-зелёные листья','Fo'],
+['Лук репчатый','veg','r','Исключить: главный источник фруктанов','Fo'],
+['Лук-порей (белая часть)','veg','r','Исключить','Fo'],
+['Чеснок','veg','r','Исключить. Замена — масло, настоянное на чесноке (без кусочков)','Fg'],
+['Шампиньоны','veg','r','Исключить','M'],
+['Вешенки','veg','g','До 1 стакана',''],
+['Спаржа','veg','r','Исключить','F,Fr'],
+['Авокадо','veg','y','До ⅛ плода (30 г)','S'],
+['Маслины, оливки','veg','g','До 15 шт.',''],
+// Фрукты
+['Банан (не перезревший, твёрдый)','fruit','g','1 средний',''],
+['Банан спелый (с точками)','fruit','y','До ⅓ банана','Fr'],
+['Апельсин','fruit','g','1 средний',''],
+['Мандарин','fruit','g','1–2 шт.',''],
+['Киви','fruit','g','До 2 шт.',''],
+['Ананас','fruit','g','До 1 стакана кусочками',''],
+['Виноград','fruit','g','До 1 стакана (≈150 г)',''],
+['Клубника','fruit','g','До 5 средних ягод',''],
+['Голубика, черника','fruit','g','До 1 стакана',''],
+['Малина','fruit','g','До 30 ягод',''],
+['Лимон, лайм','fruit','g','Обычная порция',''],
+['Дыня','fruit','g','До 1 стакана кусочками (120 г)',''],
+['Грейпфрут','fruit','y','До ½ плода','Fr'],
+['Гранат','fruit','y','До ¼ плода (зёрна)','Fr'],
+['Яблоко','fruit','r','Исключить','F,S'],
+['Груша','fruit','r','Исключить','F,S'],
+['Арбуз','fruit','r','Исключить','F,M,Fr'],
+['Вишня, черешня','fruit','r','Исключить','F,S'],
+['Слива','fruit','r','Исключить','S'],
+['Персик, нектарин','fruit','r','Исключить','S,M'],
+['Абрикос','fruit','r','Исключить','S'],
+['Манго','fruit','r','Исключить','F'],
+['Хурма','fruit','r','Исключить на старте','F'],
+['Ежевика','fruit','r','Исключить','S'],
+['Сухофрукты (курага, чернослив, финики, инжир)','fruit','r','Исключить','F,S,Fr'],
+['Изюм','fruit','y','До 1 ст. л.','Fr'],
+// Крупы, хлеб
+['Рис белый','grain','g','Любая обычная порция',''],
+['Рис бурый','grain','g','Обычная порция',''],
+['Гречка','grain','g','Обычная порция (до 1 стакана варёной)',''],
+['Пшено','grain','g','Обычная порция',''],
+['Овсяные хлопья (геркулес)','grain','g','До ½ стакана сухих (52 г)','Fr,G'],
+['Кукурузная крупа, полента','grain','g','Обычная порция',''],
+['Киноа','grain','g','Обычная порция',''],
+['Манная крупа','grain','r','Исключить: пшеница','Fw'],
+['Перловка, ячневая крупа','grain','r','Исключить','Fw'],
+['Булгур, кускус','grain','y','До ¼ стакана готового','Fw'],
+['Макароны пшеничные','grain','y','До ½ стакана варёных (≈75 г)','Fw'],
+['Макароны безглютеновые (рис/кукуруза)','grain','g','Обычная порция',''],
+['Лапша рисовая','grain','g','Обычная порция',''],
+['Лапша гречневая (100% гречка)','grain','g','Обычная порция. Проверь состав: часто с пшеницей','Fw'],
+['Белый пшеничный хлеб, батон','grain','y','Не больше 1 ломтика за приём','Fw'],
+['Хлеб ржаной, бородинский','grain','r','Исключить','Fw'],
+['Хлеб цельнозерновой, с отрубями','grain','r','Исключить','Fw'],
+['Хлеб безглютеновый','grain','g','2 ломтика. Проверь состав: без мёда, инулина, цикория',''],
+['Хлеб на закваске из полбы','grain','g','До 2 ломтиков','Fw'],
+['Хлебцы рисовые, гречневые, кукурузные','grain','g','До 4 шт.',''],
+['Лаваш пшеничный','grain','y','Не больше ½ листа','Fw'],
+['Пельмени, вареники (покупные)','grain','r','Исключить: пшеничное тесто + лук в фарше','Fw,Fo'],
+['Мука пшеничная','grain','r','Для выпечки — заменить','Fw'],
+['Мука рисовая','grain','g','Основа для блинов, сырников, выпечки',''],
+['Мука кукурузная','grain','g','Можно',''],
+['Мука гречневая','grain','g','Можно',''],
+['Смесь безглютеновой муки','grain','g','Можно; проверь, чтобы не было соевой муки и инулина',''],
+['Крахмал картофельный, кукурузный','grain','g','Можно',''],
+// Выпечка и сладкое
+['Сдобная выпечка (булочки, пирожки, плюшки)','bake','r','Исключить: пшеничная мука, часто начинки с FODMAP','Fw'],
+['Торты, пирожные','bake','r','Исключить на старте','Fw,L'],
+['Пряники','bake','r','Исключить: пшеница и мёд','Fw,F'],
+['Сушки, баранки','bake','y','1–2 шт.','Fw'],
+['Печенье пшеничное (Юбилейное, крекер)','bake','y','До 2 шт.','Fw'],
+['Печенье безглютеновое','bake','g','До 2–3 шт. Проверь состав',''],
+['Выпечка на рисовой/безглютеновой муке (своя)','bake','g','Обычная порция, если начинка подходящая',''],
+['Сахар белый и коричневый','bake','g','Умеренно',''],
+['Мёд','bake','r','Исключить','F'],
+['Кленовый сироп','bake','g','До 2 ст. л.',''],
+['Варенье клубничное, малиновое','bake','g','До 2 ст. л.',''],
+['Шоколад тёмный (от 70%)','bake','g','До 30 г',''],
+['Шоколад молочный','bake','y','До 20 г','L'],
+['Шоколад белый','bake','y','До 20 г','L'],
+['Зефир, пастила','bake','r','Исключить: часто яблочное пюре','F,S'],
+['Мармелад','bake','y','Проверь состав: без яблока и груши','F,S'],
+['Мороженое молочное','bake','r','Исключить','L'],
+['Сгущёнка','bake','r','Исключить','L'],
+['Продукты «без сахара» с сорбитом, ксилитом, мальтитом','bake','r','Исключить, в том числе жвачку','S,M'],
+['Сироп агавы, фруктоза','bake','r','Исключить','F'],
+// Мясо, рыба, яйца
+['Яйца','protein','g','Можно в любом виде',''],
+['Говядина','protein','g','Можно; без маринада с луком/чесноком',''],
+['Свинина','protein','g','Можно; без маринада с луком/чесноком',''],
+['Курица, индейка','protein','g','Можно',''],
+['Фарш домашний (без лука)','protein','g','Можно',''],
+['Рыба (любая)','protein','g','Можно',''],
+['Креветки, морепродукты','protein','g','Можно',''],
+['Колбаса варёная, сосиски','protein','y','Проверь состав: часто лук, чеснок','Fo,Fg'],
+['Колбаса копчёная, ветчина','protein','y','Проверь состав: чеснок, специи','Fg'],
+['Полуфабрикаты (котлеты, наггетсы)','protein','r','Обычно лук, чеснок, пшеница','Fo,Fg,Fw'],
+['Печень','protein','g','Можно',''],
+// Бобовые
+['Тофу твёрдый','legume','g','До 160 г',''],
+['Нут консервированный','legume','y','До ¼ стакана (42 г), промыть','G'],
+['Чечевица консервированная','legume','y','До ½ стакана (46 г), промыть','G'],
+['Чечевица варёная (из сухой)','legume','y','До ¼ стакана','G'],
+['Фасоль красная, белая','legume','r','Исключить','G'],
+['Горох (гороховый суп)','legume','r','Исключить','G'],
+['Соевое молоко из соевых бобов','legume','r','Исключить. Можно из соевого белка','G'],
+// Молочное
+['Молоко коровье','dairy','r','Исключить: лактоза','L'],
+['Молоко безлактозное','dairy','g','Можно',''],
+['Кефир','dairy','y','До ½ стакана','L'],
+['Ряженка, варенец','dairy','y','До ½ стакана','L'],
+['Йогурт натуральный','dairy','r','Исключить; безлактозный — можно','L'],
+['Йогурт безлактозный','dairy','g','Можно',''],
+['Творог','dairy','y','До 2 ст. л. (≈40 г) за приём','L'],
+['Творог безлактозный','dairy','g','Можно',''],
+['Творожные сырки','dairy','r','Исключить','L'],
+['Сметана','dairy','y','До 2 ст. л.','L'],
+['Сливки','dairy','y','До 2 ст. л.','L'],
+['Сыр твёрдый (российский, гауда, чеддер, пармезан)','dairy','g','До 40 г',''],
+['Сыр моцарелла, брынза, фета','dairy','g','До 40 г',''],
+['Сыр плавленый, сливочный (творожный)','dairy','y','До 2 ст. л.','L'],
+['Масло сливочное','dairy','g','Можно',''],
+['Молоко растительное: рисовое, миндальное, овсяное','dairy','y','Миндальное и рисовое — до 1 стакана; овсяное — до ½','Fr,G'],
+// Орехи
+['Грецкие орехи','nuts','g','До 10 половинок',''],
+['Арахис','nuts','g','До 32 шт.',''],
+['Миндаль','nuts','y','До 10 шт.','G'],
+['Фундук','nuts','y','До 10 шт.','G'],
+['Кешью','nuts','r','Исключить','G,Fr'],
+['Фисташки','nuts','r','Исключить','G,Fr'],
+['Семечки подсолнечника','nuts','y','До 2 ст. л.','Fr'],
+['Тыквенные семечки','nuts','g','До 2 ст. л.',''],
+['Кунжут','nuts','g','До 1 ст. л.',''],
+['Семена льна, чиа','nuts','g','До 1–2 ст. л.',''],
+['Арахисовая паста','nuts','g','До 2 ст. л.',''],
+// Соусы
+['Масло подсолнечное, оливковое','sauce','g','Можно',''],
+['Масло, настоянное на чесноке','sauce','g','Можно: фруктаны не переходят в масло',''],
+['Соль, перец, паприка, куркума, лавровый лист, зира','sauce','g','Можно',''],
+['Асафетида','sauce','g','Щепотка — заменитель лука',''],
+['Майонез','sauce','g','До 2 ст. л.; без чеснока',''],
+['Горчица','sauce','g','До 1 ст. л.',''],
+['Кетчуп','sauce','y','До 1 ст. л.','Fr'],
+['Томатная паста','sauce','g','До 2 ст. л.',''],
+['Соевый соус','sauce','g','До 2 ст. л.',''],
+['Уксус столовый, яблочный','sauce','g','До 2 ст. л.',''],
+['Аджика, чесночные соусы','sauce','r','Исключить','Fg'],
+['Приправы-смеси, бульонные кубики','sauce','r','Обычно лук и чеснок','Fo,Fg'],
+['Цикорий, инулин','sauce','r','Исключить','Fr'],
+// Напитки
+['Вода, минеральная без газа','drink','g','Можно',''],
+['Кофе чёрный','drink','g','1–2 чашки в день',''],
+['Чай чёрный, зелёный','drink','g','Не очень крепкий',''],
+['Чай мятный','drink','g','Можно',''],
+['Чай ромашковый, с фенхелем','drink','r','Исключить','Fr'],
+['Какао (порошок)','drink','g','До 2 ч. л., на безлактозном молоке',''],
+['Сок апельсиновый','drink','y','До ½ стакана','F'],
+['Сок яблочный, мультифрукт','drink','r','Исключить','F,S'],
+['Квас','drink','r','Исключить','Fw'],
+['Газированные напитки','drink','y','Газ сам по себе усиливает вздутие',''],
+['Вино сухое','drink','g','1 бокал',''],
+['Пиво','drink','y','1 бутылка',''],
+];
+const FOODS=FOODS_RAW.map(a=>({name:a[0],cat:a[1],st:a[2],por:a[3],grp:a[4]?a[4].split(','):[]}));
+
+// Блюда: [название, приём пищи, ингредиенты [[продукт, кол-во]], заметка]
+const DISHES_RAW=[
+['Яичница на сливочном масле','b',[['Яйца','2–3 шт.'],['Масло сливочное','10 г'],['Укроп, петрушка, кинза, базилик','по вкусу']],'Можно с помидором и сыром.'],
+['Яйца варёные','b',[['Яйца','2 шт.'],['Соль, перец, паприка, куркума, лавровый лист, зира','по вкусу']],''],
+['Омлет с сыром и помидором','b',[['Яйца','3 шт.'],['Молоко безлактозное','50 мл'],['Сыр твёрдый (российский, гауда, чеддер, пармезан)','30 г'],['Помидор','1 шт.'],['Зелёный лук (перо)','по вкусу']],''],
+['Сырники на рисовой муке','b',[['Творог','40 г'],['Яйца','1 шт.'],['Мука рисовая','2 ст. л.'],['Сахар белый и коричневый','1 ст. л.'],['Масло подсолнечное, оливковое','для жарки']],'Обычный творог — только 40 г на порцию (≈2 небольших сырника). С безлактозным творогом порцию можно увеличить. Подавать с клубничным вареньем, без сметаны или 1–2 ст. л.'],
+['Сырники из безлактозного творога','b',[['Творог безлактозный','150 г'],['Яйца','1 шт.'],['Мука рисовая','3 ст. л.'],['Сахар белый и коричневый','1 ст. л.'],['Варенье клубничное, малиновое','2 ст. л.']],''],
+['Овсяная каша на безлактозном молоке','b',[['Овсяные хлопья (геркулес)','50 г'],['Молоко безлактозное','200 мл'],['Банан (не перезревший, твёрдый)','½ шт.'],['Масло сливочное','5 г']],'Вместо банана — клубника или голубика.'],
+['Гречневая каша с маслом','b',[['Гречка','60 г сухой'],['Масло сливочное','10 г']],''],
+['Рисовая каша на безлактозном молоке','b',[['Рис белый','50 г'],['Молоко безлактозное','250 мл'],['Сахар белый и коричневый','1 ч. л.'],['Масло сливочное','5 г']],''],
+['Пшённая каша с тыквой','b',[['Пшено','50 г'],['Тыква','75 г'],['Молоко безлактозное','200 мл'],['Масло сливочное','5 г']],''],
+['Блины на рисовой муке','b',[['Мука рисовая','120 г'],['Крахмал картофельный, кукурузный','1 ст. л.'],['Молоко безлактозное','300 мл'],['Яйца','2 шт.'],['Сахар белый и коричневый','1 ст. л.'],['Масло подсолнечное, оливковое','2 ст. л.']],'Подавать с клубничным вареньем, кленовым сиропом или сыром. Не с мёдом и сгущёнкой.'],
+['Бутерброд с сыром','b',[['Хлеб безглютеновый','2 ломтика'],['Масло сливочное','10 г'],['Сыр твёрдый (российский, гауда, чеддер, пармезан)','30 г'],['Огурец свежий','по вкусу']],'Можно на хлебе из полбы на закваске или 1 ломтике белого батона.'],
+['Кекс на рисовой муке','b',[['Смесь безглютеновой муки','150 г'],['Яйца','2 шт.'],['Сахар белый и коричневый','100 г'],['Масло сливочное','80 г'],['Молоко безлактозное','80 мл'],['Голубика, черника','горсть']],'Замена сладкой выпечке. 1–2 куска за раз.'],
+['Печенье овсяное без пшеницы','b',[['Овсяные хлопья (геркулес)','100 г'],['Мука рисовая','50 г'],['Масло сливочное','60 г'],['Сахар белый и коричневый','60 г'],['Яйца','1 шт.']],'До 2–3 шт. за раз из-за овсянки.'],
+['Куриный суп с рисом','l',[['Курица, индейка','150 г'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Рис белый','2 ст. л.'],['Лук-порей (зелёная часть)','для вкуса'],['Укроп, петрушка, кинза, базилик','по вкусу']],'Без лука и без бульонных кубиков. Вкус лука даёт зелёная часть порея или зелёный лук.'],
+['Щи из свежей капусты','l',[['Говядина','150 г'],['Капуста белокочанная','75 г на порцию'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Томатная паста','1 ст. л.'],['Зелёный лук (перо)','по вкусу'],['Соль, перец, паприка, куркума, лавровый лист, зира','лавровый лист, перец']],'Без лука и чеснока.'],
+['Борщ адаптированный','l',[['Говядина','150 г'],['Свёкла','20 г на порцию'],['Капуста белокочанная','75 г на порцию'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Томатная паста','1 ст. л.'],['Масло, настоянное на чесноке','1 ч. л.'],['Сметана','1–2 ст. л.']],'Свёклы немного — она ограничена. Чеснок заменяет чесночное масло.'],
+['Уха','l',[['Рыба (любая)','200 г'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Зелёный лук (перо)','по вкусу'],['Укроп, петрушка, кинза, базилик','по вкусу']],''],
+['Суп с фрикадельками','l',[['Фарш домашний (без лука)','150 г'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Рис белый','1 ст. л.'],['Укроп, петрушка, кинза, базилик','по вкусу']],'В фарш — соль, перец, зелень, без лука.'],
+['Рассольник с рисом','l',[['Говядина','150 г'],['Огурцы солёные/маринованные','2 шт.'],['Картофель','2 шт.'],['Морковь','1 шт.'],['Рис белый','2 ст. л.'],['Лук-порей (зелёная часть)','для вкуса']],'Перловку заменяет рис.'],
+['Суп-пюре из тыквы','l',[['Тыква','75 г на порцию'],['Морковь','1 шт.'],['Картофель','1 шт.'],['Сливки','1–2 ст. л.'],['Тыквенные семечки','1 ст. л.']],''],
+['Свинина тушёная с картофелем','d',[['Свинина','150 г'],['Картофель','3 шт.'],['Морковь','1 шт.'],['Перец болгарский красный','½ шт.'],['Соль, перец, паприка, куркума, лавровый лист, зира','по вкусу']],''],
+['Отбивные из свинины с гречкой','d',[['Свинина','150 г'],['Яйца','1 шт.'],['Мука рисовая','для панировки'],['Гречка','60 г сухой'],['Огурец свежий','на гарнир']],'Панировка на рисовой муке или крахмале.'],
+['Котлеты куриные с гречкой','d',[['Курица, индейка','200 г фарша'],['Яйца','1 шт.'],['Крахмал картофельный, кукурузный','1 ст. л.'],['Зелёный лук (перо)','по вкусу'],['Гречка','60 г сухой']],'Без лука и без батона в фарше.'],
+['Говядина тушёная с морковью и рисом','d',[['Говядина','150 г'],['Морковь','1 шт.'],['Томатная паста','1 ст. л.'],['Рис белый','60 г сухого']],''],
+['Курица запечённая с картофельным пюре','d',[['Курица, индейка','200 г'],['Картофель','3 шт.'],['Молоко безлактозное','100 мл'],['Масло сливочное','15 г'],['Укроп, петрушка, кинза, базилик','по вкусу']],'Пюре на безлактозном молоке.'],
+['Макароны по-флотски','d',[['Макароны безглютеновые (рис/кукуруза)','80 г сухих'],['Фарш домашний (без лука)','150 г'],['Морковь','½ шт.'],['Масло, настоянное на чесноке','1 ч. л.']],'С обычными пшеничными макаронами — не больше ½ стакана готовых.'],
+['Макароны с сыром','d',[['Макароны безглютеновые (рис/кукуруза)','80 г сухих'],['Сыр твёрдый (российский, гауда, чеддер, пармезан)','40 г'],['Масло сливочное','10 г']],''],
+['Плов с курицей','d',[['Курица, индейка','200 г'],['Рис белый','80 г'],['Морковь','2 шт.'],['Масло, настоянное на чесноке','1 ст. л.'],['Соль, перец, паприка, куркума, лавровый лист, зира','зира, барбарис']],'Вместо лука и головки чеснока — чесночное масло и зелёный лук.'],
+['Голубцы ленивые','d',[['Фарш домашний (без лука)','200 г'],['Капуста белокочанная','75 г на порцию'],['Рис белый','50 г'],['Морковь','1 шт.'],['Томатная паста','2 ст. л.']],''],
+['Тефтели в томатном соусе с рисом','d',[['Фарш домашний (без лука)','200 г'],['Рис белый','60 г сухого'],['Томатная паста','2 ст. л.'],['Морковь','1 шт.']],''],
+['Рыба запечённая с картофелем','d',[['Рыба (любая)','200 г'],['Картофель','3 шт.'],['Лимон, лайм','долька'],['Масло подсолнечное, оливковое','1 ст. л.']],''],
+['Драники','d',[['Картофель','4 шт.'],['Яйца','1 шт.'],['Крахмал картофельный, кукурузный','1 ст. л.'],['Масло подсолнечное, оливковое','для жарки'],['Сметана','1–2 ст. л.']],'Без лука в тесте.'],
+['Печень тушёная с морковью и гречкой','d',[['Печень','150 г'],['Морковь','1 шт.'],['Сметана','1–2 ст. л.'],['Гречка','60 г сухой']],''],
+['Салат из огурцов и помидоров','s',[['Огурец свежий','1 шт.'],['Помидор','1 шт.'],['Укроп, петрушка, кинза, базилик','по вкусу'],['Масло подсолнечное, оливковое','1 ст. л.']],'Сметану — не больше 2 ст. л.'],
+['Оливье адаптированный','s',[['Картофель','2 шт.'],['Морковь','1 шт.'],['Яйца','2 шт.'],['Курица, индейка','100 г'],['Огурцы солёные/маринованные','2 шт.'],['Майонез','2 ст. л.'],['Зелёный лук (перо)','по вкусу']],'Без горошка (или до 1 ст. л. на порцию) и без репчатого лука.'],
+['Винегрет адаптированный','s',[['Картофель','2 шт.'],['Морковь','1 шт.'],['Свёкла','20 г на порцию'],['Огурцы солёные/маринованные','2 шт.'],['Капуста квашеная','2 ст. л.'],['Масло подсолнечное, оливковое','1 ст. л.']],'Без фасоли и лука, свёклы — немного.'],
+];
+const MT={b:'Завтрак',l:'Обед',d:'Ужин',s:'Перекус'};
+
+const TESTS=[
+{k:'L',name:'Лактоза',food:'молоко коровье',doses:['½ стакана (125 мл)','¾ стакана (190 мл)','1 стакан (250 мл)']},
+{k:'F',name:'Фруктоза',food:'мёд',doses:['1 ч. л.','1½ ч. л.','2 ч. л.']},
+{k:'Fw',name:'Фруктаны: пшеница',food:'белый пшеничный хлеб',doses:['1 ломтик','2 ломтика','3 ломтика']},
+{k:'Fo',name:'Фруктаны: лук',food:'репчатый лук (в готовом блюде)',doses:['⅛ луковицы','¼ луковицы','½ луковицы']},
+{k:'Fg',name:'Фруктаны: чеснок',food:'чеснок',doses:['¼ зубчика','½ зубчика','1 зубчик']},
+{k:'G',name:'ГОС (бобовые)',food:'консервированная чечевица или нут, промытые',doses:['¼ стакана','½ стакана','1 стакан']},
+{k:'S',name:'Сорбитол',food:'авокадо',doses:['¼ плода','½ плода','1 плод']},
+{k:'M',name:'Маннитол',food:'шампиньоны',doses:['2 шт.','4 шт.','6 шт.']},
+];
+const RES={ok:'Переносится',part:'Только малые порции',no:'Не переносится'};
+
+/* ================== СОСТОЯНИЕ ================== */
+const DEF_SETTINGS={phase:'none',elimStart:null,reintroStart:null,personalStart:null,tests:{},customFoods:[],customDishes:[],hiddenDishes:[]};
+const S={settings:JSON.parse(JSON.stringify(DEF_SETTINGS)),days:{}};
+let curTab='day', curDate=today(), foodFilter='all', foodQuery='', dishQuery='', dishFilter='all';
+
+function today(){const d=new Date();return ymd(d)}
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function addDays(s,n){const d=parse(s);d.setDate(d.getDate()+n);return ymd(d)}
+function diff(a,b){return Math.round((parse(b)-parse(a))/864e5)}
+const MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const WD=['вс','пн','вт','ср','чт','пт','сб'];
+function fmt(s){const d=parse(s);return d.getDate()+' '+MON[d.getMonth()]}
+function fmtW(s){const d=parse(s);return WD[d.getDay()]+', '+d.getDate()+' '+MON[d.getMonth()]}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+function allFoods(){return FOODS.concat(S.settings.customFoods.map(f=>({...f,custom:true})))}
+function findFood(n){return allFoods().find(f=>f.name===n)}
+function builtinDishes(){return DISHES_RAW.map((a,i)=>({id:'b'+i,name:a[0],mt:a[1],ing:a[2].map(x=>({f:x[0],q:x[1]})),note:a[3],builtin:true}))}
+function allDishes(){
+  const custom=S.settings.customDishes;
+  const ids=new Set(custom.map(d=>d.id));
+  return builtinDishes().filter(d=>!ids.has(d.id)&&!S.settings.hiddenDishes.includes(d.id)).concat(custom);
+}
+function findDish(id){return allDishes().find(d=>d.id===id)}
+const RANK={g:0,u:1,y:2,r:3};
+function dishStatus(d){let s='g';for(const i of d.ing){const f=findFood(i.f);const st=f?f.st:'u';if(st==='u')continue;if(RANK[st]>RANK[s])s=st}return s}
+function testFor(k){return S.settings.tests[k]}
+function groupResult(g){
+  if(g==='Fr'){const r=['Fw','Fo'].map(k=>testFor(k)?.result).filter(Boolean);if(r.length<2)return null;return r.includes('no')?'no':r.includes('part')?'part':'ok'}
+  return testFor(g)?.result||null;
+}
+function personal(f){
+  if(f.st==='g'||!f.grp.length)return null;
+  const rs=f.grp.map(groupResult);
+  if(rs.includes('no'))return 'no';
+  if(rs.some(r=>r===null))return null;
+  return rs.includes('part')?'part':'ok';
+}
+function day(d){return S.days[d]||(S.days[d]={meals:[],sym:{},note:''})}
+
+/* ================== ХРАНИЛИЩЕ (только в телефоне) ================== */
+const KEY='fodmap_v1';
+function cacheLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('Не удалось сохранить: память браузера недоступна');return false}}
+function loadLocal(){try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(c){S.settings=Object.assign(JSON.parse(JSON.stringify(DEF_SETTINGS)),c.settings||{});S.days=c.days||{}}}catch(e){}}
+function setSync(t){document.getElementById('sync').textContent=t}
+function saveSettings(){cacheLocal()}
+function saveDay(d){
+  const x=S.days[d];
+  const empty=!x||(!x.meals.length&&!Object.keys(x.sym||{}).length&&!x.note);
+  if(empty)delete S.days[d];
+  cacheLocal();
+}
+function initStore(){
+  loadLocal();render();
+  setSync('Данные хранятся только в этом телефоне');
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({app:'fodmap-diary',version:1,exported:new Date().toISOString(),data:S},null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fodmap-backup-'+today()+'.json';
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  try{localStorage.setItem(KEY+'_lastBackup',today())}catch(e){}
+  toast('Файл сохранён в «Загрузки»');render();
+}
+function importData(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const j=JSON.parse(r.result);const d=j.data||j;
+      if(!d.settings||!d.days)throw 0;
+      S.settings=Object.assign(JSON.parse(JSON.stringify(DEF_SETTINGS)),d.settings);S.days=d.days;
+      cacheLocal();render();toast('Данные восстановлены');
+    }catch(e){toast('Это не файл резервной копии дневника')}
+  };
+  r.readAsText(file);
+}
+function lastBackup(){try{return localStorage.getItem(KEY+'_lastBackup')}catch(e){return null}}
+
+/* ================== UI ОБЩЕЕ ================== */
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('on'),2600)}
+function openSheet(html){document.getElementById('sheetBody').innerHTML=html;document.getElementById('overlay').classList.add('on');document.getElementById('sheet').classList.add('on');document.getElementById('sheet').scrollTop=0}
+function closeSheet(){document.getElementById('overlay').classList.remove('on');document.getElementById('sheet').classList.remove('on')}
+document.getElementById('overlay').onclick=closeSheet;
+function tag(st,txt){return `<span class="tag ${st}"><span class="dot ${st}"></span>${esc(txt||ST[st])}</span>`}
+function grpTags(g){const u=[...new Set(g.map(x=>GROUPS[x]))];return u.map(x=>`<span class="tag grp">${x}</span>`).join(' ')}
+function setTab(t){curTab=t;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='tab-'+t));render();window.scrollTo(0,0)}
+document.getElementById('nav').onclick=e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.tab)};
+
+function phaseInfo(){
+  const s=S.settings,t=today();
+  if(s.phase==='elim'){const n=diff(s.elimStart,t)+1;return{chip:`Исключение · день ${n}`,n}}
+  if(s.phase==='reintro')return{chip:'Введение продуктов'};
+  if(s.phase==='personal')return{chip:'Персональный рацион'};
+  return{chip:'Не начато'};
+}
+function activeTest(){
+  const s=S.settings;if(s.phase!=='reintro')return null;
+  for(const T of TESTS){const r=s.tests[T.k];if(r&&r.start&&!r.result){return{T,r,dayN:diff(r.start,today())+1}}}
+  return null;
+}
+function testDayForDate(date){
+  for(const T of TESTS){const r=S.settings.tests[T.k];if(r&&r.start){const n=diff(r.start,date)+1;const stop=r.result?Math.min(3,r.endDay||3):3;if(n>=1&&n<=stop+3)return{T,r,n,stop}}}
+  return null;
+}
+
+/* ================== ВКЛАДКА «ДЕНЬ» ================== */
+function renderDay(){
+  const el=document.getElementById('tab-day'),d=S.days[curDate]||{meals:[],sym:{},note:''},s=S.settings;
+  let h=`<div class="datebar"><button onclick="shiftDate(-1)">‹</button><div><div class="dt">${curDate===today()?'Сегодня':esc(fmtW(curDate))}</div><div class="muted" style="text-align:center">${curDate===today()?esc(fmtW(curDate)):'<a href="#" onclick="curDate=today();render();return false">к сегодня</a>'}</div></div><button onclick="shiftDate(1)" ${curDate>=today()?'disabled style="opacity:.3"':''}>›</button></div>`;
+  if(s.phase==='none'){
+    h+=`<div class="card"><h2>С чего начать</h2><p class="sub" style="margin:0 0 10px">Первый этап — исключение продуктов с высоким содержанием FODMAP на 2–6 недель. В это время ешь блюда и продукты с зелёной меткой, а жёлтые — только в указанной порции. Каждый вечер отмечай симптомы.</p><button class="btn full" onclick="startElim()">Начать этап исключения сегодня</button></div>`;
+  }else if(s.phase==='elim'){
+    const n=diff(s.elimStart,today())+1;const pct=Math.min(100,n/42*100);
+    h+=`<div class="card"><div class="row between"><h2 style="margin:0">Исключение: день ${n}</h2><span class="muted">2–6 недель</span></div><div class="prog"><i style="width:${pct}%"></i></div><div class="muted">${n<14?`Минимум ещё ${14-n} дн. Ешь продукты с зелёной меткой.`:'Если вздутие заметно уменьшилось — можно переходить к введению продуктов (вкладка «Этапы»).'}</div></div>`;
+  }
+  const td=testDayForDate(curDate);
+  if(s.phase==='reintro'&&td){
+    const {T,n,stop}=td;
+    if(n<=stop)h+=`<div class="notice b"><b>Тест «${esc(T.name)}», день ${n} из 3.</b><br>Съешь: ${esc(T.food)} — <b>${esc(T.doses[n-1])}</b>. Остальная еда — только зелёные продукты. Вечером отметь симптомы.</div>`;
+    else h+=`<div class="notice g"><b>Перерыв после теста «${esc(T.name)}», день ${n-stop} из 3.</b><br>Только продукты с низким FODMAP, без новых тестов.</div>`;
+  }else if(s.phase==='reintro'&&curDate===today()){
+    h+=`<div class="notice b">Сейчас нет активного теста. Начни следующий во вкладке «Этапы».</div>`;
+  }
+  const lb=lastBackup();
+  if(curDate===today()&&Object.keys(S.days).length>=3&&(!lb||diff(lb,today())>=7))h+=`<div class="notice y">Давно не было резервной копии. <a href="#" onclick="exportData();return false"><b>Сохранить сейчас</b></a></div>`;
+  // Еда
+  h+=`<div class="card"><h2>Что съела</h2>`;
+  if(!d.meals.length)h+=`<div class="empty">Пока ничего не добавлено</div>`;
+  const order=['b','l','d','s'];
+  const meals=[...d.meals].sort((a,b)=>order.indexOf(a.mt)-order.indexOf(b.mt));
+  for(const m of meals){
+    h+=`<div class="meal"><span class="mealtype">${MT[m.mt]}</span><span class="dot ${m.st}"></span><div style="flex:1;min-width:0"><div style="font-weight:600">${esc(m.name)}</div>${m.q?`<div class="muted">${esc(m.q)}</div>`:''}</div><button class="x" onclick="removeMeal('${m.id}')" aria-label="Удалить">×</button></div>`;
+  }
+  h+=`<div class="fab"><button class="btn" onclick="pickMeal('dish')">+ Блюдо</button><button class="btn sec" onclick="pickMeal('food')">+ Продукт</button></div></div>`;
+  // Симптомы
+  const sy=d.sym||{};
+  const sl=(k,l)=>`<div class="slider"><div class="row"><label>${l}</label><span class="val" id="v_${k}">${sy[k]??'—'}</span></div><input type="range" min="0" max="10" step="1" value="${sy[k]??0}" oninput="document.getElementById('v_${k}').textContent=this.value" onchange="setSym('${k}',+this.value)"></div>`;
+  h+=`<div class="card"><h2>Самочувствие за день</h2><div class="muted">0 — нет совсем, 10 — очень сильно</div>${sl('bloat','Вздутие')}${sl('pain','Боль в животе')}${sl('gas','Газы')}<h3>Стул</h3><div class="seg">${['Норма','Запор','Диарея','Не было'].map(x=>`<button class="${sy.stool===x?'on':''}" onclick="setSym('stool','${x}')">${x}</button>`).join('')}</div><h3>Заметка</h3><textarea rows="2" placeholder="Стресс, сон, лекарства, менструация…" onchange="setNote(this.value)">${esc(d.note||'')}</textarea></div>`;
+  el.innerHTML=h;
+}
+function shiftDate(n){const nd=addDays(curDate,n);if(nd>today())return;curDate=nd;render()}
+function setSym(k,v){const d=day(curDate);d.sym=d.sym||{};d.sym[k]=v;saveDay(curDate);if(k==='stool')render();else{}}
+function setNote(v){const d=day(curDate);d.note=v.trim();saveDay(curDate)}
+function removeMeal(id){const d=day(curDate);d.meals=d.meals.filter(m=>m.id!==id);saveDay(curDate);render()}
+function startElim(){S.settings.phase='elim';S.settings.elimStart=today();saveSettings();render();toast('Этап исключения начат')}
+function defaultMT(){const h=new Date().getHours();return h<11?'b':h<16?'l':h<21?'d':'s'}
+let pickState={kind:'dish',mt:'b',q:''};
+function pickMeal(kind,preset){
+  pickState={kind,mt:defaultMT(),q:'',preset};
+  renderPicker();
+}
+function renderPicker(){
+  const p=pickState;
+  let h=`<h2>${p.kind==='dish'?'Добавить блюдо':'Добавить продукт'}</h2><div class="muted" style="margin-bottom:8px">${curDate===today()?'Сегодня':esc(fmtW(curDate))}</div><div class="seg" style="margin-bottom:10px">${Object.entries(MT).map(([k,v])=>`<button class="${p.mt===k?'on':''}" onclick="pickState.mt='${k}';renderPicker()">${v}</button>`).join('')}</div>`;
+  if(p.preset){
+    const it=p.preset;
+    h+=`<div class="card" style="margin-bottom:10px"><div class="row"><span class="dot ${it.st}"></span><b>${esc(it.name)}</b></div></div><div class="row"><input class="inp" id="pq" placeholder="Количество (необязательно)"></div><button class="btn full" style="margin-top:10px" onclick="addMeal(${JSON.stringify(JSON.stringify(it)).replace(/"/g,'&quot;')})">Добавить</button>`;
+  }else{
+    h+=`<input class="search" id="pickq" placeholder="Поиск…" value="${esc(p.q)}" oninput="pickState.q=this.value;renderPickList()"><ul class="list" id="pickList" style="margin-top:6px"></ul>`;
+    if(p.kind==='dish')h+=`<button class="btn ghost full" style="margin-top:10px" onclick="editDish(null)">+ Создать своё блюдо</button>`;
+  }
+  openSheet(h);
+  if(!p.preset)renderPickList();
+}
+function renderPickList(){
+  const p=pickState,q=p.q.trim().toLowerCase();
+  let items=p.kind==='dish'?allDishes().map(d=>({name:d.name,st:dishStatus(d),sub:MT[d.mt],ref:d.id,mt:d.mt})):allFoods().map(f=>({name:f.name,st:f.st,sub:f.por,ref:f.name}));
+  if(q)items=items.filter(i=>i.name.toLowerCase().includes(q));
+  else if(p.kind==='dish')items.sort((a,b)=>(a.mt===p.mt?0:1)-(b.mt===p.mt?0:1));
+  document.getElementById('pickList').innerHTML=items.slice(0,80).map((i,ix)=>`<li class="item" data-ix="${ix}"><span class="dot ${i.st}"></span><div class="grow"><div class="t">${esc(i.name)}</div><div class="d">${esc(i.sub)}</div></div><span style="color:var(--accent);font-weight:800;font-size:22px">+</span></li>`).join('')||'<div class="empty">Ничего не найдено</div>';
+  document.getElementById('pickList').onclick=e=>{const li=e.target.closest('.item');if(!li)return;const it=items[+li.dataset.ix];addMeal(JSON.stringify({name:it.name,st:it.st,kind:p.kind,ref:it.ref}))};
+}
+function addMeal(js){
+  const it=JSON.parse(js);const q=document.getElementById('pq')?.value.trim()||'';
+  const d=day(curDate);d.meals.push({id:uid(),mt:pickState.mt,name:it.name,st:it.st,kind:it.kind,ref:it.ref,q});
+  saveDay(curDate);closeSheet();
+  if(S.settings.phase==='elim'&&it.st==='r')toast('Внимание: на этапе исключения этот продукт лучше не есть');
+  else toast('Добавлено: '+it.name);
+  if(curTab!=='day')setTab('day');else render();
+}
+
+/* ================== ПРОДУКТЫ ================== */
+function renderFoods(){
+  const el=document.getElementById('tab-foods');
+  if(!el.dataset.init){
+    el.innerHTML=`<input class="search" placeholder="Найти продукт…" oninput="foodQuery=this.value;renderFoodList()"><div class="filters" id="ffil"></div><div id="flist"></div><button class="btn ghost full" style="margin-top:12px" onclick="editFood()">+ Добавить свой продукт</button><p class="muted" style="margin-top:14px">Метки — для этапа исключения, по общедоступным данным о FODMAP. Это не замена приложению Monash и советам врача. Всегда смотри состав: лук, чеснок, мёд, инулин, сорбит часто прячутся в готовых продуктах.</p>`;
+    el.dataset.init=1;
+  }
+  const f=[['all','Все'],['g','🟢 Можно'],['y','🟡 Порция'],['r','🔴 Исключить']];
+  document.getElementById('ffil').innerHTML=f.map(([k,v])=>`<button class="fbtn ${foodFilter===k?'on':''}" onclick="foodFilter='${k}';renderFoods()">${v}</button>`).join('');
+  renderFoodList();
+}
+function renderFoodList(){
+  const q=foodQuery.trim().toLowerCase();
+  let list=allFoods().filter(f=>(foodFilter==='all'||f.st===foodFilter)&&(!q||f.name.toLowerCase().includes(q)));
+  let h='';
+  for(const c in CATS){
+    const items=list.filter(f=>f.cat===c);if(!items.length)continue;
+    h+=`<div class="catttl">${CATS[c]}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
+    for(const f of items){
+      const p=personal(f);
+      h+=`<li class="item" onclick="showFood(${JSON.stringify(f.name).replace(/"/g,'&quot;')})"><span class="dot ${f.st}"></span><div class="grow"><div class="t">${esc(f.name)}${f.custom?' <span class="muted">· мой</span>':''}</div><div class="d">${esc(f.por)}</div></div>${p?`<span class="tag ${p==='ok'?'g':p==='part'?'y':'r'}" title="по твоим тестам">${p==='ok'?'✓ мне ок':p==='part'?'~ мало':'✗ мне нет'}</span>`:''}</li>`;
+    }
+    h+=`</ul></div>`;
+  }
+  document.getElementById('flist').innerHTML=h||'<div class="empty">Ничего не найдено. Можно добавить свой продукт.</div>';
+}
+function showFood(name){
+  const f=findFood(name);if(!f)return;const p=personal(f);
+  let h=`<h2>${esc(f.name)}</h2><div class="row wrap" style="margin:8px 0">${tag(f.st)} ${grpTags(f.grp)}</div><p class="sub"><b>Порция:</b> ${esc(f.por)}</p>`;
+  if(p)h+=`<div class="notice ${p==='ok'?'g':'y'}">По результатам твоих тестов: <b>${RES[p]}</b>.</div>`;
+  if(f.grp.length&&!p&&f.st!=='g')h+=`<p class="muted">Содержит: ${[...new Set(f.grp.map(g=>GROUPS[g]))].join(', ')}. Переносимость проверяется на этапе введения.</p>`;
+  h+=`<button class="btn full" onclick='pickState={kind:"food",mt:defaultMT(),q:""};pickState.preset=${JSON.stringify({name:f.name,st:f.st,kind:'food',ref:f.name}).replace(/'/g,"&#39;")};renderPicker()'>Добавить в дневник</button>`;
+  if(f.custom)h+=`<div class="row" style="margin-top:8px"><button class="btn ghost" style="flex:1" onclick='editFood(${JSON.stringify(f.name).replace(/'/g,"&#39;")})'>Изменить</button><button class="btn danger" style="flex:1" onclick='delFood(${JSON.stringify(f.name).replace(/'/g,"&#39;")})'>Удалить</button></div>`;
+  openSheet(h);
+}
+function editFood(name){
+  const f=name?S.settings.customFoods.find(x=>x.name===name):{name:'',cat:'veg',st:'g',por:'',grp:[]};
+  openSheet(`<h2>${name?'Изменить продукт':'Свой продукт'}</h2>
+  <h3>Название</h3><input class="inp" id="cf_n" value="${esc(f.name)}">
+  <h3>Категория</h3><select class="inp" id="cf_c">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${f.cat===k?'selected':''}>${v}</option>`).join('')}</select>
+  <h3>Метка</h3><div class="seg" id="cf_s">${['g','y','r'].map(k=>`<button data-v="${k}" class="${f.st===k?'on':''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${ST[k]}</button>`).join('')}</div>
+  <h3>Порция / заметка</h3><input class="inp" id="cf_p" value="${esc(f.por)}">
+  <button class="btn full" style="margin-top:14px" onclick='saveFood(${JSON.stringify(name||'').replace(/'/g,"&#39;")})'>Сохранить</button>`);
+}
+function saveFood(old){
+  const n=document.getElementById('cf_n').value.trim();if(!n){toast('Введи название');return}
+  if((!old||old!==n)&&findFood(n)){toast('Такой продукт уже есть');return}
+  const f={name:n,cat:document.getElementById('cf_c').value,st:document.querySelector('#cf_s .on')?.dataset.v||'g',por:document.getElementById('cf_p').value.trim(),grp:[]};
+  const arr=S.settings.customFoods;const i=old?arr.findIndex(x=>x.name===old):-1;
+  if(i>=0)arr[i]=f;else arr.push(f);
+  saveSettings();closeSheet();render();toast('Сохранено');
+}
+function delFood(n){S.settings.customFoods=S.settings.customFoods.filter(x=>x.name!==n);saveSettings();closeSheet();render()}
+
+/* ================== БЛЮДА ================== */
+function renderDishes(){
+  const el=document.getElementById('tab-dishes');
+  if(!el.dataset.init){
+    el.innerHTML=`<input class="search" placeholder="Найти блюдо…" oninput="dishQuery=this.value;renderDishList()"><div class="filters" id="dfil"></div><div id="dlist"></div><button class="btn full" style="margin-top:12px" onclick="editDish(null)">+ Своё блюдо</button>`;
+    el.dataset.init=1;
+  }
+  document.getElementById('dfil').innerHTML=[['all','Все'],...Object.entries(MT)].map(([k,v])=>`<button class="fbtn ${dishFilter===k?'on':''}" onclick="dishFilter='${k}';renderDishes()">${v}</button>`).join('');
+  renderDishList();
+}
+function renderDishList(){
+  const q=dishQuery.trim().toLowerCase();
+  const list=allDishes().filter(d=>(dishFilter==='all'||d.mt===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
+  let h='';
+  for(const k in MT){
+    const items=list.filter(d=>d.mt===k);if(!items.length)continue;
+    h+=`<div class="catttl">${MT[k]}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
+    for(const d of items){const st=dishStatus(d);h+=`<li class="item" onclick="showDish('${d.id}')"><span class="dot ${st}"></span><div class="grow"><div class="t">${esc(d.name)}${!d.builtin?' <span class="muted">· моё</span>':''}</div><div class="d">${esc(d.ing.map(i=>i.f.split(' (')[0].split(',')[0]).join(', '))}</div></div></li>`}
+    h+=`</ul></div>`;
+  }
+  document.getElementById('dlist').innerHTML=h||'<div class="empty">Ничего не найдено</div>';
+}
+function showDish(id){
+  const d=findDish(id);if(!d)return;const st=dishStatus(d);
+  let h=`<h2>${esc(d.name)}</h2><div class="row wrap" style="margin:8px 0">${tag(st,st==='g'?'Можно':st==='y'?'Следи за порцией':'Есть исключаемые продукты')} <span class="tag u">${MT[d.mt]}</span></div><h3>Ингредиенты</h3><ul class="list">`;
+  for(const i of d.ing){const f=findFood(i.f);const s=f?f.st:'u';h+=`<li class="item" style="cursor:default"><span class="dot ${s}"></span><div class="grow"><div class="t" style="font-weight:500">${esc(i.f)}</div><div class="d">${esc(i.q||'')}${s==='y'&&f?' · лимит: '+esc(f.por):''}</div></div></li>`}
+  h+=`</ul>`;
+  if(d.note)h+=`<div class="notice b" style="margin-top:8px">${esc(d.note)}</div>`;
+  h+=`<button class="btn full" onclick="pickState={kind:'dish',mt:'${d.mt}',q:''};pickState.preset={name:${esc(JSON.stringify(d.name))},st:'${st}',kind:'dish',ref:'${d.id}'};renderPicker()">Добавить в дневник</button><div class="row" style="margin-top:8px"><button class="btn ghost" style="flex:1" onclick="editDish('${d.id}')">Изменить ингредиенты</button><button class="btn danger" style="flex:1" onclick="delDish('${d.id}')">${d.builtin?'Скрыть':'Удалить'}</button></div>`;
+  openSheet(h);
+}
+let editing=null;
+function editDish(id){
+  const d=id?findDish(id):null;
+  editing=d?JSON.parse(JSON.stringify(d)):{id:'c'+uid(),name:'',mt:pickState?.mt||'d',ing:[{f:'',q:''}],note:''};
+  renderEditor();
+}
+function renderEditor(){
+  const d=editing;
+  let h=`<h2>${d.builtin?'Изменить блюдо':d.name?'Изменить блюдо':'Новое блюдо'}</h2><datalist id="foodsDL">${allFoods().map(f=>`<option value="${esc(f.name)}">`).join('')}</datalist>
+  <h3>Название</h3><input class="inp" value="${esc(d.name)}" oninput="editing.name=this.value">
+  <h3>Приём пищи</h3><div class="seg">${Object.entries(MT).map(([k,v])=>`<button class="${d.mt===k?'on':''}" onclick="editing.mt='${k}';renderEditor()">${v}</button>`).join('')}</div>
+  <h3>Ингредиенты</h3><div class="muted">Начни вводить — появятся подсказки из базы. Можно вписать и свой продукт.</div>`;
+  d.ing.forEach((i,ix)=>{const f=findFood(i.f);h+=`<div class="ingrow"><span class="dot ${f?f.st:'u'}"></span><input class="inp" list="foodsDL" placeholder="Продукт" value="${esc(i.f)}" onchange="editing.ing[${ix}].f=this.value.trim();renderEditor()"><input class="inp q" placeholder="Сколько" value="${esc(i.q)}" oninput="editing.ing[${ix}].q=this.value"><button class="x" onclick="editing.ing.splice(${ix},1);renderEditor()">×</button></div>`});
+  h+=`<button class="btn ghost sm" onclick="editing.ing.push({f:'',q:''});renderEditor()">+ Ингредиент</button>
+  <h3>Заметка</h3><textarea rows="2" oninput="editing.note=this.value">${esc(d.note||'')}</textarea>
+  <div class="row" style="margin-top:14px"><button class="btn ghost" style="flex:1" onclick="closeSheet()">Отмена</button><button class="btn" style="flex:2" onclick="saveDish()">Сохранить</button></div>`;
+  const y=document.getElementById('sheet').scrollTop;openSheet(h);document.getElementById('sheet').scrollTop=y;
+}
+function saveDish(){
+  const d=editing;d.name=(d.name||'').trim();d.ing=d.ing.filter(i=>i.f);
+  if(!d.name){toast('Введи название');return}
+  if(!d.ing.length){toast('Добавь хотя бы один ингредиент');return}
+  const save={id:d.id,name:d.name,mt:d.mt,ing:d.ing,note:d.note||''};
+  const arr=S.settings.customDishes;const i=arr.findIndex(x=>x.id===d.id);
+  if(i>=0)arr[i]=save;else arr.push(save);
+  saveSettings();closeSheet();render();toast('Блюдо сохранено');
+}
+function delDish(id){
+  if(id.startsWith('b')){
+    S.settings.customDishes=S.settings.customDishes.filter(x=>x.id!==id);
+    if(!S.settings.hiddenDishes.includes(id))S.settings.hiddenDishes.push(id);
+  }else S.settings.customDishes=S.settings.customDishes.filter(x=>x.id!==id);
+  saveSettings();closeSheet();render();toast(id.startsWith('b')?'Блюдо скрыто':'Блюдо удалено');
+}
+function restoreDishes(){S.settings.hiddenDishes=[];S.settings.customDishes=S.settings.customDishes.filter(d=>!d.id.startsWith('b'));saveSettings();render();toast('Стандартные блюда восстановлены')}
+
+/* ================== ЭТАПЫ ================== */
+function avgSym(from,to,k='bloat'){const v=[];for(let d=from;d<=to;d=addDays(d,1)){const x=S.days[d]?.sym?.[k];if(x!=null)v.push(x)}return v.length?(v.reduce((a,b)=>a+b,0)/v.length):null}
+function renderStages(){
+  const el=document.getElementById('tab-stages'),s=S.settings,t=today();
+  const ph=['elim','reintro','personal'],ci=ph.indexOf(s.phase);
+  const cls=i=>ci===i?'on':ci>i?'done':'';
+  let h=`<div class="card"><h2>План диеты</h2>
+  <div class="phase ${cls(0)}"><div class="n">${ci>0?'✓':'1'}</div><div class="b"><b>Исключение — 2–6 недель</b><span class="sub">Убираем продукты с высоким FODMAP, ждём уменьшения вздутия.</span></div></div>
+  <div class="phase ${cls(1)}"><div class="n">${ci>1?'✓':'2'}</div><div class="b"><b>Введение — 6–8 недель</b><span class="sub">По одной группе: 3 дня тест с растущей порцией, 3 дня перерыв.</span></div></div>
+  <div class="phase ${cls(2)}"><div class="n">3</div><div class="b"><b>Персональный рацион</b><span class="sub">Возвращаем всё, что переносится. Ограничиваем только то, что вызывает симптомы.</span></div></div></div>`;
+  if(s.phase==='none'){
+    h+=`<div class="card"><button class="btn full" onclick="startElim()">Начать исключение сегодня</button></div>`;
+  }
+  if(s.phase==='elim'){
+    const n=diff(s.elimStart,t)+1;
+    const first=avgSym(s.elimStart,addDays(s.elimStart,2)),last=avgSym(addDays(t,-2),t);
+    h+=`<div class="card"><h2>Исключение</h2><div class="sub">Начато ${esc(fmt(s.elimStart))}. Сегодня ${n}-й день.</div><div class="stat" style="margin:10px 0"><div><span class="muted">Вздутие в первые 3 дня</span><b>${first!=null?first.toFixed(1):'—'}</b></div><div><span class="muted">Вздутие в последние 3 дня</span><b>${last!=null?last.toFixed(1):'—'}</b></div></div>`;
+    if(n<14)h+=`<div class="notice y">Рекомендуется продержаться хотя бы 2 недели (ещё ${14-n} дн.).</div>`;
+    else if(first!=null&&last!=null&&last<=first-2)h+=`<div class="notice g">Вздутие заметно уменьшилось — похоже, пора переходить к введению. Обсуди с гастроэнтерологом.</div>`;
+    else if(n>=42)h+=`<div class="notice y">Прошло 6 недель. Если улучшения нет, дольше держать строгую диету не стоит — обсуди с врачом другие причины.</div>`;
+    h+=`<button class="btn full" onclick="startReintro()">Перейти к введению продуктов</button><button class="btn ghost full" style="margin-top:8px" onclick="changeStart()">Изменить дату начала</button></div>`;
+  }
+  if(s.phase==='reintro'||s.phase==='personal'){
+    const at=activeTest();
+    h+=`<div class="card"><h2>Тесты групп FODMAP</h2><div class="muted" style="margin-bottom:6px">Порядок — любой. Один тест за раз. Если симптомы сильные — прекрати тест раньше и дождись, пока всё пройдёт.</div>`;
+    for(const T of TESTS){
+      const r=s.tests[T.k];let body='',cl='';
+      if(r&&r.start&&!r.result){
+        cl='active';const n=diff(r.start,t)+1;
+        const scores=[0,1,2].map(i=>{const dd=addDays(r.start,i);const x=S.days[dd]?.sym?.bloat;return x!=null?x:'—'});
+        body=n<=3?`<div class="sub">День ${n} из 3: <b>${esc(T.food)} — ${esc(T.doses[Math.max(0,n-1)])}</b></div>`:n<=6?`<div class="sub">Перерыв, день ${n-3} из 3</div>`:`<div class="sub">Тест завершён — оцени результат</div>`;
+        body+=`<div class="muted">Вздутие в дни теста: ${scores.join(' · ')}</div><div class="seg" style="margin-top:8px">${Object.entries(RES).map(([k,v])=>`<button onclick="setResult('${T.k}','${k}')">${v}</button>`).join('')}</div><button class="btn ghost sm" style="margin-top:8px" onclick="cancelTest('${T.k}')">Отменить тест</button>`;
+      }else if(r&&r.result){
+        body=`<div class="row between"><span class="tag ${r.result==='ok'?'g':r.result==='part'?'y':'r'}">${RES[r.result]}</span><button class="btn ghost sm" onclick="cancelTest('${T.k}')">Сбросить</button></div>`;
+      }else{
+        body=`<div class="muted">Продукт для теста: ${esc(T.food)} (${esc(T.doses.join(' → '))})</div>${!at&&s.phase==='reintro'?`<button class="btn sec sm" style="margin-top:8px" onclick="startTest('${T.k}')">Начать тест сегодня</button>`:''}`;
+      }
+      h+=`<div class="test ${cl}"><b>${esc(T.name)}</b>${body}</div>`;
+    }
+    const done=TESTS.filter(T=>s.tests[T.k]?.result).length;
+    h+=`<div class="prog"><i style="width:${done/TESTS.length*100}%"></i></div><div class="muted">Пройдено ${done} из ${TESTS.length}</div>`;
+    if(s.phase==='reintro')h+=`<button class="btn ${done===TESTS.length?'':'ghost'} full" style="margin-top:10px" onclick="toPersonal()">Перейти к персональному рациону</button>`;
+    h+=`</div>`;
+  }
+  if(s.phase==='personal'){
+    const ok=TESTS.filter(T=>s.tests[T.k]?.result==='ok'),part=TESTS.filter(T=>s.tests[T.k]?.result==='part'),no=TESTS.filter(T=>s.tests[T.k]?.result==='no');
+    h+=`<div class="card"><h2>Твой рацион</h2>${ok.length?`<p><span class="tag g">Можно возвращать</span><br>${ok.map(T=>esc(T.name)).join(', ')}</p>`:''}${part.length?`<p><span class="tag y">Малыми порциями</span><br>${part.map(T=>esc(T.name)).join(', ')}</p>`:''}${no.length?`<p><span class="tag r">Ограничивать</span><br>${no.map(T=>esc(T.name)).join(', ')}</p>`:''}<div class="muted">Во вкладке «Продукты» рядом с продуктами появились личные отметки по результатам тестов. Покажи этот список гастроэнтерологу.</div></div>`;
+  }
+  h+=`<div class="card"><h2>Важно</h2><p class="sub" style="margin:0">Приложение помогает вести дневник по назначению врача, но не заменяет его. Метки продуктов основаны на общедоступных данных и могут отличаться от данных Monash University. Если появятся кровь в стуле, потеря веса, ночные боли, температура или рвота — сразу к врачу.</p></div>`;
+  h+=`<div class="card"><h2>Резервная копия</h2><p class="sub" style="margin:0 0 10px">Все записи хранятся только в этом телефоне. Раз в неделю сохраняй копию в файл — он пригодится при смене телефона или очистке браузера.</p><div class="muted" style="margin-bottom:8px">Последняя копия: ${lastBackup()?esc(fmt(lastBackup())):'ещё не было'}</div><button class="btn full" onclick="exportData()">Сохранить копию в файл</button><label class="btn ghost full" style="display:block;text-align:center;margin-top:8px;box-sizing:border-box">Восстановить из файла<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this.files[0]);this.value=''"></label></div>
+  <div class="card"><h2>Настройки</h2><button class="btn ghost full" onclick="restoreDishes()">Вернуть скрытые стандартные блюда</button><button class="btn danger full" style="margin-top:8px" onclick="askReset()">Начать диету заново</button></div>`;
+  el.innerHTML=h;
+}
+function startReintro(){S.settings.phase='reintro';S.settings.reintroStart=today();saveSettings();render();toast('Начат этап введения')}
+function toPersonal(){S.settings.phase='personal';S.settings.personalStart=today();saveSettings();render()}
+function startTest(k){S.settings.tests[k]={start:today(),result:null};saveSettings();render();toast('Тест начат. Доза дня — на вкладке «День»')}
+function setResult(k,v){const r=S.settings.tests[k];r.result=v;r.endDay=Math.min(6,diff(r.start,today())+1);saveSettings();render();toast('Результат сохранён. Перед следующим тестом — 3 дня перерыва без симптомов')}
+function cancelTest(k){delete S.settings.tests[k];saveSettings();render()}
+function changeStart(){openSheet(`<h2>Дата начала исключения</h2><input type="date" class="inp" id="sd" value="${S.settings.elimStart}" max="${today()}"><button class="btn full" style="margin-top:12px" onclick="const v=document.getElementById('sd').value;if(v){S.settings.elimStart=v;saveSettings();closeSheet();render()}">Сохранить</button>`)}
+function askReset(){openSheet(`<h2>Начать заново?</h2><p class="sub">Этап и результаты тестов сбросятся. Записи дневника, свои продукты и блюда останутся.</p><div class="row"><button class="btn ghost" style="flex:1" onclick="closeSheet()">Отмена</button><button class="btn danger" style="flex:1" onclick="doReset()">Сбросить</button></div>`)}
+function doReset(){Object.assign(S.settings,{phase:'none',elimStart:null,reintroStart:null,personalStart:null,tests:{}});saveSettings();closeSheet();render()}
+
+/* ================== ИСТОРИЯ ================== */
+let histRange=30;
+function renderHistory(){
+  const el=document.getElementById('tab-history'),t=today();
+  const dates=[];for(let i=histRange-1;i>=0;i--)dates.push(addDays(t,-i));
+  const ser=[['bloat','Вздутие','var(--s1)'],['pain','Боль','var(--s2)'],['gas','Газы','var(--s3)']];
+  const W=340,H=170,pl=24,pr=8,pt=10,pb=22,iw=W-pl-pr,ih=H-pt-pb;
+  const x=i=>pl+(dates.length===1?iw/2:i*iw/(dates.length-1)),y=v=>pt+ih-v/10*ih;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" id="chart" role="img" aria-label="График симптомов">`;
+  for(const v of [0,5,10])svg+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#e6e4dc" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" font-size="10" fill="#8a8c84" text-anchor="end">${v}</text>`;
+  const lbl=[0,Math.floor((dates.length-1)/2),dates.length-1];
+  for(const i of lbl){const d=parse(dates[i]);svg+=`<text x="${x(i)}" y="${H-6}" font-size="10" fill="#8a8c84" text-anchor="${i===0?'start':i===dates.length-1?'end':'middle'}">${d.getDate()}.${String(d.getMonth()+1).padStart(2,'0')}</text>`}
+  let hasData=false;
+  for(const [k,,c] of ser){
+    let path='',pen=false;
+    dates.forEach((d,i)=>{const v=S.days[d]?.sym?.[k];if(v!=null){hasData=true;path+=(pen?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ';pen=true}else pen=false});
+    svg+=`<path d="${path}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    dates.forEach((d,i)=>{const v=S.days[d]?.sym?.[k];if(v!=null)svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="2.6" fill="${c}" stroke="#fff" stroke-width="1"/>`});
+  }
+  svg+=`<line id="cross" x1="0" x2="0" y1="${pt}" y2="${pt+ih}" stroke="#8a8c84" stroke-width="1" stroke-dasharray="3 3" style="display:none"/><rect x="${pl}" y="0" width="${iw}" height="${H}" fill="transparent" id="hit"/></svg>`;
+  // phase markers
+  let h=`<div class="card"><div class="row between"><h2 style="margin:0">Симптомы</h2><div class="seg" style="flex:none">${[14,30,90].map(n=>`<button class="${histRange===n?'on':''}" style="min-width:52px;flex:none" onclick="histRange=${n};render()">${n} дн</button>`).join('')}</div></div>
+  <div class="legend">${ser.map(([,l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join('')}</div>
+  <div class="chartbox">${svg}<div class="tip" id="tip"></div></div>${hasData?'':'<div class="empty">Отмечай самочувствие каждый день — здесь появится график</div>'}</div>`;
+  // weekly avg
+  const wk=[0,1,2,3].map(w=>{const to=addDays(t,-7*w),from=addDays(to,-6);return{from,to,v:avgSym(from,to)}}).filter(w=>w.v!=null);
+  if(wk.length)h+=`<div class="card"><h2>Среднее вздутие по неделям</h2><div class="stat">${wk.reverse().map(w=>`<div><span class="muted">${esc(fmt(w.from))}–${esc(fmt(w.to))}</span><b>${w.v.toFixed(1)}</b></div>`).join('')}</div></div>`;
+  // list
+  const ds=Object.keys(S.days).sort().reverse();
+  h+=`<div class="card"><h2>Записи</h2>`;
+  if(!ds.length)h+=`<div class="empty">Пока нет записей</div>`;
+  for(const d of ds.slice(0,60)){
+    const x2=S.days[d],sy=x2.sym||{};
+    h+=`<div class="hist" onclick="curDate='${d}';setTab('day')"><div class="row between"><b>${esc(fmtW(d))}</b><div class="scores"><span>В <b>${sy.bloat??'—'}</b></span><span>Б <b>${sy.pain??'—'}</b></span><span>Г <b>${sy.gas??'—'}</b></span></div></div><div class="muted">${x2.meals.length?x2.meals.map(m=>`<span class="dot ${m.st}" style="width:7px;height:7px"></span> ${esc(m.name)}`).join(' · '):'Еда не записана'}${sy.stool?' · Стул: '+esc(sy.stool):''}</div></div>`;
+  }
+  h+=`</div>`;
+  el.innerHTML=h;
+  // hover
+  const svgEl=document.getElementById('chart'),tip=document.getElementById('tip'),cross=document.getElementById('cross');
+  const move=ev=>{
+    const r=svgEl.getBoundingClientRect(),pt0=(ev.touches?ev.touches[0]:ev);const sx=(pt0.clientX-r.left)/r.width*W;
+    let i=Math.round((sx-pl)/iw*(dates.length-1));i=Math.max(0,Math.min(dates.length-1,i));
+    const d=dates[i],sy=S.days[d]?.sym||{};
+    cross.setAttribute('x1',x(i));cross.setAttribute('x2',x(i));cross.style.display='';
+    tip.innerHTML=`<b>${esc(fmtW(d))}</b><br>`+ser.map(([k,l,c])=>`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:5px"></span>${l}: <b>${sy[k]??'—'}</b>`).join('<br>');
+    tip.style.display='block';const px=x(i)/W*r.width;tip.style.left=Math.min(r.width-tip.offsetWidth,Math.max(0,px-tip.offsetWidth/2))+'px';tip.style.top='-6px';
+  };
+  const hide=()=>{tip.style.display='none';cross.style.display='none'};
+  const hit=document.getElementById('hit');hit.addEventListener('mousemove',move);hit.addEventListener('touchstart',move,{passive:true});hit.addEventListener('touchmove',move,{passive:true});hit.addEventListener('mouseleave',hide);hit.addEventListener('touchend',()=>setTimeout(hide,1500));
+}
+
+/* ================== РЕНДЕР ================== */
+function render(){
+  document.getElementById('phaseChip').textContent=phaseInfo().chip;
+  if(curTab==='day')renderDay();
+  else if(curTab==='foods')renderFoods();
+  else if(curTab==='dishes')renderDishes();
+  else if(curTab==='stages')renderStages();
+  else if(curTab==='history')renderHistory();
+}
+initStore();
+</script>
+</body>
+</html>
