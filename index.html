@@ -524,10 +524,32 @@ function initStore(){
   loadLocal();render();
   setSync('Данные хранятся только в этом телефоне');
   if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(!IN_APP&&'serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  showIntroIfNeeded();
 }
+// Кнопка «Назад» в Android: закрыть окно → вернуться на «День» → выйти
+function handleBack(){
+  if(document.getElementById('sheet').classList.contains('on')){closeSheet();return true}
+  if(curTab!=='day'){setTab('day');return true}
+  return false;
+}
+function showIntroIfNeeded(){
+  let seen=null;try{seen=localStorage.getItem(KEY+'_intro')}catch(e){}
+  if(seen)return;
+  openSheet(`<h2>Добро пожаловать</h2>
+  <p class="sub">FODMAP-дневник помогает пройти low-FODMAP диету: записывать еду и самочувствие, исключать продукты и затем вводить их обратно по одной группе.</p>
+  <div class="notice y"><b>Это не медицинское приложение.</b> Оно не ставит диагноз и не назначает лечение. Метки продуктов основаны на общедоступных данных и могут отличаться от официальных таблиц Monash University. Начинай диету после консультации с врачом — вздутие бывает вызвано разными причинами.</div>
+  <p class="muted">Все записи хранятся только на этом телефоне и никуда не отправляются. Регулярно сохраняй резервную копию (вкладка «Этапы»).</p>
+  <button class="btn full" onclick="try{localStorage.setItem(KEY+'_intro','1')}catch(e){};closeSheet()">Понятно</button>`);
+}
+const APP_VERSION='1.0';
+const PRIVACY_URL='https://nycteridae.github.io/Fodmap/privacy.html';
+const IN_APP=!!window.AndroidBridge;
+function markBackupDone(){try{localStorage.setItem(KEY+'_lastBackup',today())}catch(e){}render()}
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'fodmap-diary',version:1,exported:new Date().toISOString(),data:S},null,1)],{type:'application/json'});
+  const json=JSON.stringify({app:'fodmap-diary',version:1,exported:new Date().toISOString(),data:S},null,1);
+  if(window.AndroidBridge){window.AndroidBridge.saveBackup('fodmap-backup-'+today()+'.json',json);return}
+  const blob=new Blob([json],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fodmap-backup-'+today()+'.json';
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
   try{localStorage.setItem(KEY+'_lastBackup',today())}catch(e){}
@@ -854,6 +876,7 @@ function renderStages(){
     const ok=TESTS.filter(T=>s.tests[T.k]?.result==='ok'),part=TESTS.filter(T=>s.tests[T.k]?.result==='part'),no=TESTS.filter(T=>s.tests[T.k]?.result==='no');
     h+=`<div class="card"><h2>Твой рацион</h2>${ok.length?`<p><span class="tag g">Можно возвращать</span><br>${ok.map(T=>esc(T.name)).join(', ')}</p>`:''}${part.length?`<p><span class="tag y">Малыми порциями</span><br>${part.map(T=>esc(T.name)).join(', ')}</p>`:''}${no.length?`<p><span class="tag r">Ограничивать</span><br>${no.map(T=>esc(T.name)).join(', ')}</p>`:''}<div class="muted">Во вкладке «Продукты» рядом с продуктами появились личные отметки по результатам тестов. Покажи этот список гастроэнтерологу.</div></div>`;
   }
+  h+=`<div class="card"><h2>О приложении</h2><p class="sub" style="margin:0 0 6px">FODMAP-дневник, версия ${APP_VERSION}. Данные хранятся только на этом устройстве и никуда не передаются.</p><a href="${PRIVACY_URL}">Политика конфиденциальности</a></div>`;
   h+=`<div class="card"><h2>Важно</h2><p class="sub" style="margin:0">Приложение помогает вести дневник по назначению врача, но не заменяет его. Метки продуктов основаны на общедоступных данных и могут отличаться от данных Monash University. Если появятся кровь в стуле, потеря веса, ночные боли, температура или рвота — сразу к врачу.</p></div>`;
   h+=`<div class="card"><h2>Резервная копия</h2><p class="sub" style="margin:0 0 10px">Все записи хранятся только в этом телефоне. Раз в неделю сохраняй копию в файл — он пригодится при смене телефона или очистке браузера.</p><div class="muted" style="margin-bottom:8px">Последняя копия: ${lastBackup()?esc(fmt(lastBackup())):'ещё не было'}</div><button class="btn full" onclick="exportData()">Сохранить копию в файл</button><label class="btn ghost full" style="display:block;text-align:center;margin-top:8px;box-sizing:border-box">Восстановить из файла<input type="file" accept=".json,application/json" style="display:none" onchange="importData(this.files[0]);this.value=''"></label></div>
   <div class="card"><h2>Настройки</h2><button class="btn ghost full" onclick="restoreDishes()">Вернуть скрытые стандартные блюда</button><button class="btn danger full" style="margin-top:8px" onclick="askReset()">Начать диету заново</button></div>`;
