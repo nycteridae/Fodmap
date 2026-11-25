@@ -49,6 +49,12 @@ nav button.on{color:var(--accent)}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
 .tag.g{background:var(--g-soft);color:#1d6b3e} .tag.y{background:var(--y-soft);color:#7a5600} .tag.r{background:var(--r-soft);color:#9b2a24} .tag.u{background:var(--u-soft);color:#55584f}
 .tag.grp{background:#eef0f6;color:#3b4a6b;font-weight:600}
+.star{border:0;background:none;font-size:22px;line-height:1;padding:6px 4px;color:#c9c7bd;flex:none;cursor:pointer}
+.star.on{color:#e0a100}
+.pen{border:0;background:var(--u-soft);border-radius:10px;font-size:15px;padding:7px 9px;flex:none;color:var(--ink2);cursor:pointer}
+.plus{color:var(--accent);font-weight:800;font-size:24px;flex:none;padding:0 4px}
+.savebar{margin-top:14px}
+.saved{color:var(--g);font-size:13px;text-align:center;margin-top:6px}
 .list{list-style:none;margin:0;padding:0}
 .item{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line);cursor:pointer}
 .item:last-child{border-bottom:0}
@@ -351,6 +357,59 @@ const FOODS_RAW=[
 ['Газированные напитки','drink','y','Газ сам по себе усиливает вздутие',''],
 ['Вино сухое','drink','g','1 бокал',''],
 ['Пиво','drink','y','1 бутылка',''],
+// --- дополнение базы (v2)
+['Капуста краснокочанная','veg','g','До 75 г',''],
+['Батат','veg','y','До 75 г (½ стакана)','M'],
+['Фенхель (клубень)','veg','y','До 50 г','Fr'],
+['Топинамбур','veg','r','Исключить','Fr'],
+['Ростки маша, сои','veg','g','До 1 стакана',''],
+['Имбирь свежий','veg','g','Можно',''],
+['Перец чили','veg','g','Немного — может раздражать кишечник',''],
+['Лук и чеснок сушёные, гранулы','veg','r','Исключить: часто в специях и смесях','Fo,Fg'],
+['Огурцы, помидоры консервированные (домашние)','veg','y','Если без чеснока и лука в маринаде','Fg'],
+['Кокос (мякоть, стружка)','fruit','g','До ¼ стакана',''],
+['Папайя','fruit','g','До 1 стакана',''],
+['Маракуйя','fruit','g','До 2 шт.',''],
+['Клюква сушёная','fruit','y','До 1 ст. л.','Fr'],
+['Хлопья кукурузные (без мёда и солода)','grain','y','До ½ стакана',''],
+['Мюсли, гранола','grain','r','Обычно мёд, сухофрукты, пшеница','F,Fr,Fw'],
+['Овсяные отруби','grain','g','До 2 ст. л.',''],
+['Пшеничные отруби','grain','r','Исключить','Fw'],
+['Попкорн','grain','g','До 7 стаканов (без карамели с мёдом)',''],
+['Чипсы картофельные (простые, солёные)','grain','g','Небольшая пачка. Без вкуса «лук», «сметана и лук»',''],
+['Лапша яичная пшеничная','grain','y','До ½ стакана готовой','Fw'],
+['Лапша быстрого приготовления','grain','r','Приправа с луком и чесноком','Fw,Fo,Fg'],
+['Пицца','grain','r','Пшеничное тесто, лук, чеснок','Fw,Fo,Fg'],
+['Вафли','bake','y','1–2 шт.','Fw'],
+['Карамель, леденцы (с сахаром)','bake','g','Без сорбита и мальтита',''],
+['Варенье, джем из вишни, сливы, яблок, абрикосов','bake','r','Исключить','F,S'],
+['Стевия, сукралоза','bake','g','Можно как заменитель сахара',''],
+['Сало','protein','g','Можно (без чеснока)',''],
+['Бекон','protein','g','Можно, проверь состав',''],
+['Шашлык в маринаде с луком','protein','r','Мясо — можно, лук в маринаде — нет. Маринуй с маслом, зеленью, лимоном','Fo'],
+['Рыбные консервы в собственном соку или масле','protein','g','Можно',''],
+['Шпроты','protein','g','Можно',''],
+['Сельдь солёная','protein','g','Без лука',''],
+['Тушёнка','protein','y','Проверь состав: лук','Fo'],
+['Крабовые палочки','protein','y','Проверь состав: лук, чеснок, сорбит','Fo,S'],
+['Сыр сулугуни, адыгейский','dairy','g','До 40 г',''],
+['Йогурт греческий','dairy','y','До 3 ст. л.','L'],
+['Простокваша, мацони','dairy','y','До ½ стакана','L'],
+['Масло топлёное (гхи)','dairy','g','Можно',''],
+['Молоко козье','dairy','r','Исключить: лактоза','L'],
+['Сливки, сметана безлактозные','dairy','g','Можно',''],
+['Кедровые орехи','nuts','g','До 1 ст. л.',''],
+['Бразильский орех','nuts','g','До 10 шт.',''],
+['Пекан','nuts','g','До 10 половинок',''],
+['Макадамия','nuts','g','До 20 шт.',''],
+['Песто','sauce','r','Обычно чеснок','Fg'],
+['Соус барбекю','sauce','r','Обычно лук, чеснок, фруктозный сироп','Fo,Fg,F'],
+['Сметанный соус с зеленью (домашний)','sauce','y','До 2 ст. л. сметаны','L'],
+['Кофе растворимый','drink','g','1–2 чашки',''],
+['Чай с имбирём','drink','g','Можно',''],
+['Компот из сухофруктов','drink','r','Исключить','F,S,Fr'],
+['Морс клюквенный','drink','y','До 1 стакана',''],
+['Кофе с молоком (капучино, латте)','drink','y','На безлактозном или растительном молоке — можно','L'],
 ];
 const FOODS=FOODS_RAW.map(a=>({name:a[0],cat:a[1],st:a[2],por:a[3],grp:a[4]?a[4].split(','):[]}));
 
@@ -408,7 +467,7 @@ const TESTS=[
 const RES={ok:'Переносится',part:'Только малые порции',no:'Не переносится'};
 
 /* ================== СОСТОЯНИЕ ================== */
-const DEF_SETTINGS={phase:'none',elimStart:null,reintroStart:null,personalStart:null,tests:{},customFoods:[],customDishes:[],hiddenDishes:[]};
+const DEF_SETTINGS={phase:'none',elimStart:null,reintroStart:null,personalStart:null,tests:{},customFoods:[],customDishes:[],hiddenDishes:[],favFoods:[],favDishes:[]};
 const S={settings:JSON.parse(JSON.stringify(DEF_SETTINGS)),days:{}};
 let curTab='day', curDate=today(), foodFilter='all', foodQuery='', dishQuery='', dishFilter='all';
 
@@ -495,6 +554,20 @@ function openSheet(html){document.getElementById('sheetBody').innerHTML=html;doc
 function closeSheet(){document.getElementById('overlay').classList.remove('on');document.getElementById('sheet').classList.remove('on')}
 document.getElementById('overlay').onclick=closeSheet;
 function tag(st,txt){return `<span class="tag ${st}"><span class="dot ${st}"></span>${esc(txt||ST[st])}</span>`}
+function isFav(kind,key){return (kind==='dish'?S.settings.favDishes:S.settings.favFoods).includes(key)}
+function toggleFav(kind,key,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault()}
+  const arr=kind==='dish'?S.settings.favDishes:S.settings.favFoods;
+  const i=arr.indexOf(key);if(i>=0)arr.splice(i,1);else arr.push(key);
+  saveSettings();
+  toast(i>=0?'Убрано из избранного':'Добавлено в избранное ★');
+  if(document.getElementById('sheet').classList.contains('on')){
+    if(document.getElementById('pickList'))renderPickList();
+    else if(kind==='dish')showDish(key);else showFood(key);
+  }
+  if(curTab==='foods')renderFoodList();else if(curTab==='dishes')renderDishList();
+}
+function starBtn(kind,key){return `<button class="star ${isFav(kind,key)?'on':''}" aria-label="Избранное" onclick='toggleFav("${kind}",${JSON.stringify(key).replace(/'/g,"&#39;")},event)'>${isFav(kind,key)?'★':'☆'}</button>`}
 function grpTags(g){const u=[...new Set(g.map(x=>GROUPS[x]))];return u.map(x=>`<span class="tag grp">${x}</span>`).join(' ')}
 function setTab(t){curTab=t;document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));document.querySelectorAll('main>section').forEach(s=>s.classList.toggle('hide',s.id!=='tab-'+t));render();window.scrollTo(0,0)}
 document.getElementById('nav').onclick=e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.tab)};
@@ -547,12 +620,19 @@ function renderDay(){
   h+=`<div class="fab"><button class="btn" onclick="pickMeal('dish')">+ Блюдо</button><button class="btn sec" onclick="pickMeal('food')">+ Продукт</button></div></div>`;
   // Симптомы
   const sy=d.sym||{};
-  const sl=(k,l)=>`<div class="slider"><div class="row"><label>${l}</label><span class="val" id="v_${k}">${sy[k]??'—'}</span></div><input type="range" min="0" max="10" step="1" value="${sy[k]??0}" oninput="document.getElementById('v_${k}').textContent=this.value" onchange="setSym('${k}',+this.value)"></div>`;
-  h+=`<div class="card"><h2>Самочувствие за день</h2><div class="muted">0 — нет совсем, 10 — очень сильно</div>${sl('bloat','Вздутие')}${sl('pain','Боль в животе')}${sl('gas','Газы')}<h3>Стул</h3><div class="seg">${['Норма','Запор','Диарея','Не было'].map(x=>`<button class="${sy.stool===x?'on':''}" onclick="setSym('stool','${x}')">${x}</button>`).join('')}</div><h3>Заметка</h3><textarea rows="2" placeholder="Стресс, сон, лекарства, менструация…" onchange="setNote(this.value)">${esc(d.note||'')}</textarea></div>`;
+  const sl=(k,l)=>`<div class="slider"><div class="row"><label>${l}</label><span class="val" id="v_${k}">${sy[k]??'—'}</span></div><input type="range" id="r_${k}" min="0" max="10" step="1" value="${sy[k]??0}" oninput="document.getElementById('v_${k}').textContent=this.value" onchange="setSym('${k}',+this.value)"></div>`;
+  h+=`<div class="card"><h2>Самочувствие за день</h2><div class="muted">0 — нет совсем, 10 — очень сильно</div>${sl('bloat','Вздутие')}${sl('pain','Боль в животе')}${sl('gas','Газы')}<h3>Стул</h3><div class="seg">${['Норма','Запор','Диарея','Не было'].map(x=>`<button class="${sy.stool===x?'on':''}" onclick="setSym('stool','${x}')">${x}</button>`).join('')}</div><h3>Заметка</h3><textarea rows="2" placeholder="Стресс, сон, лекарства, менструация…" onchange="setNote(this.value)" id="dayNote">${esc(d.note||'')}</textarea><div class="savebar"><button class="btn full" onclick="saveDayBtn()">Сохранить день</button>${d.savedAt?`<div class="saved">✓ Сохранено в ${esc(d.savedAt)}</div>`:''}</div></div>`;
   el.innerHTML=h;
 }
 function shiftDate(n){const nd=addDays(curDate,n);if(nd>today())return;curDate=nd;render()}
 function setSym(k,v){const d=day(curDate);d.sym=d.sym||{};d.sym[k]=v;saveDay(curDate);if(k==='stool')render();else{}}
+function saveDayBtn(){
+  const d=day(curDate);d.sym=d.sym||{};
+  for(const k of ['bloat','pain','gas']){const r=document.getElementById('r_'+k);if(r)d.sym[k]=+r.value}
+  const n=document.getElementById('dayNote');if(n)d.note=n.value.trim();
+  const t=new Date();d.savedAt=String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+  S.days[curDate]=d;cacheLocal();render();toast('День сохранён ✓');
+}
 function setNote(v){const d=day(curDate);d.note=v.trim();saveDay(curDate)}
 function removeMeal(id){const d=day(curDate);d.meals=d.meals.filter(m=>m.id!==id);saveDay(curDate);render()}
 function startElim(){S.settings.phase='elim';S.settings.elimStart=today();saveSettings();render();toast('Этап исключения начат')}
@@ -570,7 +650,9 @@ function renderPicker(){
     h+=`<div class="card" style="margin-bottom:10px"><div class="row"><span class="dot ${it.st}"></span><b>${esc(it.name)}</b></div></div><div class="row"><input class="inp" id="pq" placeholder="Количество (необязательно)"></div><button class="btn full" style="margin-top:10px" onclick="addMeal(${JSON.stringify(JSON.stringify(it)).replace(/"/g,'&quot;')})">Добавить</button>`;
   }else{
     h+=`<input class="search" id="pickq" placeholder="Поиск…" value="${esc(p.q)}" oninput="pickState.q=this.value;renderPickList()"><ul class="list" id="pickList" style="margin-top:6px"></ul>`;
+    h+=`<div class="muted" style="margin-top:6px">☆ — в избранное (будет сверху)${p.kind==='dish'?', ✎ — изменить блюдо':''}</div>`;
     if(p.kind==='dish')h+=`<button class="btn ghost full" style="margin-top:10px" onclick="editDish(null)">+ Создать своё блюдо</button>`;
+    else h+=`<button class="btn ghost full" style="margin-top:10px" onclick="editFood(null,true)">+ Добавить свой продукт</button>`;
   }
   openSheet(h);
   if(!p.preset)renderPickList();
@@ -579,9 +661,11 @@ function renderPickList(){
   const p=pickState,q=p.q.trim().toLowerCase();
   let items=p.kind==='dish'?allDishes().map(d=>({name:d.name,st:dishStatus(d),sub:MT[d.mt],ref:d.id,mt:d.mt})):allFoods().map(f=>({name:f.name,st:f.st,sub:f.por,ref:f.name}));
   if(q)items=items.filter(i=>i.name.toLowerCase().includes(q));
-  else if(p.kind==='dish')items.sort((a,b)=>(a.mt===p.mt?0:1)-(b.mt===p.mt?0:1));
-  document.getElementById('pickList').innerHTML=items.slice(0,80).map((i,ix)=>`<li class="item" data-ix="${ix}"><span class="dot ${i.st}"></span><div class="grow"><div class="t">${esc(i.name)}</div><div class="d">${esc(i.sub)}</div></div><span style="color:var(--accent);font-weight:800;font-size:22px">+</span></li>`).join('')||'<div class="empty">Ничего не найдено</div>';
-  document.getElementById('pickList').onclick=e=>{const li=e.target.closest('.item');if(!li)return;const it=items[+li.dataset.ix];addMeal(JSON.stringify({name:it.name,st:it.st,kind:p.kind,ref:it.ref}))};
+  items.forEach(i=>i.fav=isFav(p.kind,i.ref));
+  items.sort((a,b)=>(b.fav-a.fav)||(p.kind==='dish'&&!q?(a.mt===p.mt?0:1)-(b.mt===p.mt?0:1):0));
+  const lim=q?200:120;
+  document.getElementById('pickList').innerHTML=items.slice(0,lim).map((i,ix)=>`<li class="item" data-ix="${ix}">${starBtn(p.kind,i.ref)}<span class="dot ${i.st}"></span><div class="grow"><div class="t">${esc(i.name)}</div><div class="d">${esc(i.sub)}</div></div>${p.kind==='dish'?`<button class="pen" aria-label="Изменить" onclick="event.stopPropagation();editDish('${i.ref}')">✎</button>`:''}<span class="plus">+</span></li>`).join('')||'<div class="empty">Ничего не найдено</div>';
+  document.getElementById('pickList').onclick=e=>{if(e.target.closest('.star,.pen'))return;const li=e.target.closest('.item');if(!li)return;const it=items[+li.dataset.ix];addMeal(JSON.stringify({name:it.name,st:it.st,kind:p.kind,ref:it.ref}))};
 }
 function addMeal(js){
   const it=JSON.parse(js);const q=document.getElementById('pq')?.value.trim()||'';
@@ -599,35 +683,39 @@ function renderFoods(){
     el.innerHTML=`<input class="search" placeholder="Найти продукт…" oninput="foodQuery=this.value;renderFoodList()"><div class="filters" id="ffil"></div><div id="flist"></div><button class="btn ghost full" style="margin-top:12px" onclick="editFood()">+ Добавить свой продукт</button><p class="muted" style="margin-top:14px">Метки — для этапа исключения, по общедоступным данным о FODMAP. Это не замена приложению Monash и советам врача. Всегда смотри состав: лук, чеснок, мёд, инулин, сорбит часто прячутся в готовых продуктах.</p>`;
     el.dataset.init=1;
   }
-  const f=[['all','Все'],['g','🟢 Можно'],['y','🟡 Порция'],['r','🔴 Исключить']];
+  const f=[['all','Все'],['fav','★ Избранное'],['g','🟢 Можно'],['y','🟡 Порция'],['r','🔴 Исключить']];
   document.getElementById('ffil').innerHTML=f.map(([k,v])=>`<button class="fbtn ${foodFilter===k?'on':''}" onclick="foodFilter='${k}';renderFoods()">${v}</button>`).join('');
   renderFoodList();
 }
 function renderFoodList(){
   const q=foodQuery.trim().toLowerCase();
-  let list=allFoods().filter(f=>(foodFilter==='all'||f.st===foodFilter)&&(!q||f.name.toLowerCase().includes(q)));
+  let list=allFoods().filter(f=>(foodFilter==='all'||(foodFilter==='fav'?isFav('food',f.name):f.st===foodFilter))&&(!q||f.name.toLowerCase().includes(q)));
   let h='';
-  for(const c in CATS){
-    const items=list.filter(f=>f.cat===c);if(!items.length)continue;
-    h+=`<div class="catttl">${CATS[c]}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
+  const favs=foodFilter==='all'&&!q?list.filter(f=>isFav('food',f.name)):[];
+  const groups=(favs.length?[['__fav','★ Избранное',favs]]:[]).concat(Object.keys(CATS).map(c=>[c,CATS[c],list.filter(f=>f.cat===c)]));
+  for(const [c,title,items] of groups){
+    if(!items.length)continue;
+    h+=`<div class="catttl">${title}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
     for(const f of items){
       const p=personal(f);
-      h+=`<li class="item" onclick="showFood(${JSON.stringify(f.name).replace(/"/g,'&quot;')})"><span class="dot ${f.st}"></span><div class="grow"><div class="t">${esc(f.name)}${f.custom?' <span class="muted">· мой</span>':''}</div><div class="d">${esc(f.por)}</div></div>${p?`<span class="tag ${p==='ok'?'g':p==='part'?'y':'r'}" title="по твоим тестам">${p==='ok'?'✓ мне ок':p==='part'?'~ мало':'✗ мне нет'}</span>`:''}</li>`;
+      h+=`<li class="item" onclick="showFood(${JSON.stringify(f.name).replace(/"/g,'&quot;')})">${starBtn('food',f.name)}<span class="dot ${f.st}"></span><div class="grow"><div class="t">${esc(f.name)}${f.custom?' <span class="muted">· мой</span>':''}</div><div class="d">${esc(f.por)}</div></div>${p?`<span class="tag ${p==='ok'?'g':p==='part'?'y':'r'}" title="по твоим тестам">${p==='ok'?'✓ мне ок':p==='part'?'~ мало':'✗ мне нет'}</span>`:''}</li>`;
     }
     h+=`</ul></div>`;
   }
-  document.getElementById('flist').innerHTML=h||'<div class="empty">Ничего не найдено. Можно добавить свой продукт.</div>';
+  document.getElementById('flist').innerHTML=h||(foodFilter==='fav'?'<div class="empty">Нажми ☆ рядом с продуктом, чтобы добавить его в избранное</div>':'<div class="empty">Ничего не найдено. Можно добавить свой продукт.</div>');
 }
 function showFood(name){
   const f=findFood(name);if(!f)return;const p=personal(f);
-  let h=`<h2>${esc(f.name)}</h2><div class="row wrap" style="margin:8px 0">${tag(f.st)} ${grpTags(f.grp)}</div><p class="sub"><b>Порция:</b> ${esc(f.por)}</p>`;
+  let h=`<div class="row between"><h2 style="margin:0">${esc(f.name)}</h2>${starBtn('food',f.name)}</div><div class="row wrap" style="margin:8px 0">${tag(f.st)} ${grpTags(f.grp)}</div><p class="sub"><b>Порция:</b> ${esc(f.por)}</p>`;
   if(p)h+=`<div class="notice ${p==='ok'?'g':'y'}">По результатам твоих тестов: <b>${RES[p]}</b>.</div>`;
   if(f.grp.length&&!p&&f.st!=='g')h+=`<p class="muted">Содержит: ${[...new Set(f.grp.map(g=>GROUPS[g]))].join(', ')}. Переносимость проверяется на этапе введения.</p>`;
   h+=`<button class="btn full" onclick='pickState={kind:"food",mt:defaultMT(),q:""};pickState.preset=${JSON.stringify({name:f.name,st:f.st,kind:'food',ref:f.name}).replace(/'/g,"&#39;")};renderPicker()'>Добавить в дневник</button>`;
   if(f.custom)h+=`<div class="row" style="margin-top:8px"><button class="btn ghost" style="flex:1" onclick='editFood(${JSON.stringify(f.name).replace(/'/g,"&#39;")})'>Изменить</button><button class="btn danger" style="flex:1" onclick='delFood(${JSON.stringify(f.name).replace(/'/g,"&#39;")})'>Удалить</button></div>`;
   openSheet(h);
 }
-function editFood(name){
+let foodFromPicker=false;
+function editFood(name,fromPicker){
+  foodFromPicker=!!fromPicker;
   const f=name?S.settings.customFoods.find(x=>x.name===name):{name:'',cat:'veg',st:'g',por:'',grp:[]};
   openSheet(`<h2>${name?'Изменить продукт':'Свой продукт'}</h2>
   <h3>Название</h3><input class="inp" id="cf_n" value="${esc(f.name)}">
@@ -642,7 +730,8 @@ function saveFood(old){
   const f={name:n,cat:document.getElementById('cf_c').value,st:document.querySelector('#cf_s .on')?.dataset.v||'g',por:document.getElementById('cf_p').value.trim(),grp:[]};
   const arr=S.settings.customFoods;const i=old?arr.findIndex(x=>x.name===old):-1;
   if(i>=0)arr[i]=f;else arr.push(f);
-  saveSettings();closeSheet();render();toast('Сохранено');
+  saveSettings();render();toast('Сохранено');
+  if(foodFromPicker){foodFromPicker=false;pickState.q=n;renderPicker()}else closeSheet();
 }
 function delFood(n){S.settings.customFoods=S.settings.customFoods.filter(x=>x.name!==n);saveSettings();closeSheet();render()}
 
@@ -653,28 +742,30 @@ function renderDishes(){
     el.innerHTML=`<input class="search" placeholder="Найти блюдо…" oninput="dishQuery=this.value;renderDishList()"><div class="filters" id="dfil"></div><div id="dlist"></div><button class="btn full" style="margin-top:12px" onclick="editDish(null)">+ Своё блюдо</button>`;
     el.dataset.init=1;
   }
-  document.getElementById('dfil').innerHTML=[['all','Все'],...Object.entries(MT)].map(([k,v])=>`<button class="fbtn ${dishFilter===k?'on':''}" onclick="dishFilter='${k}';renderDishes()">${v}</button>`).join('');
+  document.getElementById('dfil').innerHTML=[['all','Все'],['fav','★ Избранное'],...Object.entries(MT)].map(([k,v])=>`<button class="fbtn ${dishFilter===k?'on':''}" onclick="dishFilter='${k}';renderDishes()">${v}</button>`).join('');
   renderDishList();
 }
 function renderDishList(){
   const q=dishQuery.trim().toLowerCase();
-  const list=allDishes().filter(d=>(dishFilter==='all'||d.mt===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
+  const list=allDishes().filter(d=>(dishFilter==='all'||(dishFilter==='fav'?isFav('dish',d.id):d.mt===dishFilter))&&(!q||d.name.toLowerCase().includes(q)));
   let h='';
-  for(const k in MT){
-    const items=list.filter(d=>d.mt===k);if(!items.length)continue;
-    h+=`<div class="catttl">${MT[k]}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
-    for(const d of items){const st=dishStatus(d);h+=`<li class="item" onclick="showDish('${d.id}')"><span class="dot ${st}"></span><div class="grow"><div class="t">${esc(d.name)}${!d.builtin?' <span class="muted">· моё</span>':''}</div><div class="d">${esc(d.ing.map(i=>i.f.split(' (')[0].split(',')[0]).join(', '))}</div></div></li>`}
+  const favs=dishFilter==='all'&&!q?list.filter(d=>isFav('dish',d.id)):[];
+  const groups=(favs.length?[['★ Избранное',favs]]:[]).concat(Object.keys(MT).map(k=>[MT[k],list.filter(d=>d.mt===k)]));
+  for(const [title,items] of groups){
+    if(!items.length)continue;
+    h+=`<div class="catttl">${title}</div><div class="card" style="padding:2px 14px"><ul class="list">`;
+    for(const d of items){const st=dishStatus(d);h+=`<li class="item" onclick="showDish('${d.id}')">${starBtn('dish',d.id)}<span class="dot ${st}"></span><div class="grow"><div class="t">${esc(d.name)}${!d.builtin?' <span class="muted">· моё</span>':''}</div><div class="d">${esc(d.ing.map(i=>i.f.split(' (')[0].split(',')[0]).join(', '))}</div></div><button class="pen" aria-label="Изменить" onclick="event.stopPropagation();editDish('${d.id}')">✎</button></li>`}
     h+=`</ul></div>`;
   }
-  document.getElementById('dlist').innerHTML=h||'<div class="empty">Ничего не найдено</div>';
+  document.getElementById('dlist').innerHTML=h||(dishFilter==='fav'?'<div class="empty">Нажми ☆ рядом с блюдом, чтобы добавить его в избранное</div>':'<div class="empty">Ничего не найдено</div>');
 }
 function showDish(id){
   const d=findDish(id);if(!d)return;const st=dishStatus(d);
-  let h=`<h2>${esc(d.name)}</h2><div class="row wrap" style="margin:8px 0">${tag(st,st==='g'?'Можно':st==='y'?'Следи за порцией':'Есть исключаемые продукты')} <span class="tag u">${MT[d.mt]}</span></div><h3>Ингредиенты</h3><ul class="list">`;
+  let h=`<div class="row between"><h2 style="margin:0">${esc(d.name)}</h2>${starBtn('dish',d.id)}</div><div class="row wrap" style="margin:8px 0">${tag(st,st==='g'?'Можно':st==='y'?'Следи за порцией':'Есть исключаемые продукты')} <span class="tag u">${MT[d.mt]}</span></div><h3>Ингредиенты</h3><ul class="list">`;
   for(const i of d.ing){const f=findFood(i.f);const s=f?f.st:'u';h+=`<li class="item" style="cursor:default"><span class="dot ${s}"></span><div class="grow"><div class="t" style="font-weight:500">${esc(i.f)}</div><div class="d">${esc(i.q||'')}${s==='y'&&f?' · лимит: '+esc(f.por):''}</div></div></li>`}
   h+=`</ul>`;
   if(d.note)h+=`<div class="notice b" style="margin-top:8px">${esc(d.note)}</div>`;
-  h+=`<button class="btn full" onclick="pickState={kind:'dish',mt:'${d.mt}',q:''};pickState.preset={name:${esc(JSON.stringify(d.name))},st:'${st}',kind:'dish',ref:'${d.id}'};renderPicker()">Добавить в дневник</button><div class="row" style="margin-top:8px"><button class="btn ghost" style="flex:1" onclick="editDish('${d.id}')">Изменить ингредиенты</button><button class="btn danger" style="flex:1" onclick="delDish('${d.id}')">${d.builtin?'Скрыть':'Удалить'}</button></div>`;
+  h+=`<button class="btn full" onclick="pickState={kind:'dish',mt:'${d.mt}',q:''};pickState.preset={name:${esc(JSON.stringify(d.name))},st:'${st}',kind:'dish',ref:'${d.id}'};renderPicker()">Добавить в дневник</button><div class="row" style="margin-top:8px"><button class="btn ghost" style="flex:1" onclick="editDish('${d.id}')">✎ Изменить блюдо</button><button class="btn danger" style="flex:1" onclick="delDish('${d.id}')">${d.builtin?'Скрыть':'Удалить'}</button></div>`;
   openSheet(h);
 }
 let editing=null;
@@ -690,6 +781,8 @@ function renderEditor(){
   <h3>Приём пищи</h3><div class="seg">${Object.entries(MT).map(([k,v])=>`<button class="${d.mt===k?'on':''}" onclick="editing.mt='${k}';renderEditor()">${v}</button>`).join('')}</div>
   <h3>Ингредиенты</h3><div class="muted">Начни вводить — появятся подсказки из базы. Можно вписать и свой продукт.</div>`;
   d.ing.forEach((i,ix)=>{const f=findFood(i.f);h+=`<div class="ingrow"><span class="dot ${f?f.st:'u'}"></span><input class="inp" list="foodsDL" placeholder="Продукт" value="${esc(i.f)}" onchange="editing.ing[${ix}].f=this.value.trim();renderEditor()"><input class="inp q" placeholder="Сколько" value="${esc(i.q)}" oninput="editing.ing[${ix}].q=this.value"><button class="x" onclick="editing.ing.splice(${ix},1);renderEditor()">×</button></div>`});
+  const unk=d.ing.filter(i=>i.f&&!findFood(i.f)).map(i=>i.f);
+  if(unk.length)h+=`<div class="notice y" style="margin:8px 0">Нет в базе: ${unk.map(esc).join(', ')}. Блюдо сохранится, но без метки для этих продуктов. Чтобы метка появилась, добавь их во вкладке «Продукты» → «+ Добавить свой продукт».</div>`;
   h+=`<button class="btn ghost sm" onclick="editing.ing.push({f:'',q:''});renderEditor()">+ Ингредиент</button>
   <h3>Заметка</h3><textarea rows="2" oninput="editing.note=this.value">${esc(d.note||'')}</textarea>
   <div class="row" style="margin-top:14px"><button class="btn ghost" style="flex:1" onclick="closeSheet()">Отмена</button><button class="btn" style="flex:2" onclick="saveDish()">Сохранить</button></div>`;
